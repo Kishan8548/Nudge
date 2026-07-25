@@ -1,0 +1,64 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# ===== Environment =====
+.env
+*.env.local
+.env.production
+
+# ===== IDE =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ===== Data / Audio =====
+data/uploads/
+data/sample_meetings/
+*.mp3
+*.wav
+*.mp4
+*.webm
+*.m4a
+*.ogg
+*.flac
+
+# ===== Node / Frontend =====
+node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env.local
+
+# ===== MongoDB =====
+dump/
+
+# ===== Testing =====
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ===== Misc =====
+*.log
+*.bak
+plan.md
