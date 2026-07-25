@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nudge AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">N</div>
+        <div>
+          <h1>Nudge AI</h1>
+          <p class="subtitle">Meeting Capture</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Status Indicator -->
+    <div id="status-bar" class="status-bar">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">Ready to capture</span>
+    </div>
+
+    <!-- Meeting Title -->
+    <div class="field-group">
+      <label for="meeting-title">Meeting Title</label>
+      <input
+        type="text"
+        id="meeting-title"
+        placeholder="e.g. Weekly Standup"
+        autocomplete="off"
+      />
+    </div>
+
+    <!-- Backend URL -->
+    <div class="field-group">
+      <label for="backend-url">Backend URL</label>
+      <input
+        type="text"
+        id="backend-url"
+        placeholder="http://localhost:8000"
+        value="http://localhost:8000"
+      />
+    </div>
+
+    <!-- Timer -->
+    <div id="timer-section" class="timer-section hidden">
+      <div class="timer-display" id="timer-display">00:00</div>
+      <div class="timer-label">Recording...</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button id="btn-start" class="btn btn-start">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <circle cx="12" cy="12" r="4" fill="currentColor"/>
+        </svg>
+        Start Capture
+      </button>
+      <button id="btn-stop" class="btn btn-stop hidden">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/>
+        </svg>
+        Stop & Upload
+      </button>
+    </div>
+
+    <!-- Upload Progress -->
+    <div id="upload-section" class="upload-section hidden">
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+      </div>
+      <p class="upload-status" id="upload-status">Uploading...</p>
+    </div>
+
+    <!-- Result -->
+    <div id="result-section" class="result-section hidden">
+      <div class="result-card">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        <div>
+          <p class="result-title" id="result-title">Uploaded!</p>
+          <p class="result-detail" id="result-detail"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <a href="http://localhost:5173" target="_blank" rel="noopener">Open Nudge Dashboard →</a>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
