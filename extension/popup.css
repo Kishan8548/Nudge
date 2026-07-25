@@ -11,9 +11,25 @@
 body {
   width: 340px;
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #050505;
+  background: #0A0A0A; /* Matches dashboard --bg-primary */
   color: #F8FAFC;
   -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+/* Subtle background glow to match dashboard */
+body::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 150px;
+  height: 150px;
+  background: #0D9488;
+  filter: blur(80px);
+  opacity: 0.15;
+  border-radius: 50%;
+  z-index: -1;
 }
 
 .container {
@@ -64,9 +80,11 @@ body {
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 12px;
   margin-bottom: 16px;
   font-size: 0.8rem;
   color: #94A3B8;
@@ -122,9 +140,11 @@ body {
 .field-group input {
   width: 100%;
   padding: 10px 14px;
-  background: #0f0f13;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 10px;
   color: #F8FAFC;
   font-family: inherit;
   font-size: 0.85rem;
@@ -254,9 +274,11 @@ body {
   align-items: flex-start;
   gap: 12px;
   padding: 14px;
-  background: rgba(16, 185, 129, 0.08);
+  background: rgba(16, 185, 129, 0.05);
   border: 1px solid rgba(16, 185, 129, 0.2);
-  border-radius: 10px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 12px;
 }
 
 .result-card svg {

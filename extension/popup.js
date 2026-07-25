@@ -23,7 +23,6 @@ const resultSection = document.getElementById("result-section");
 const resultTitle = document.getElementById("result-title");
 const resultDetail = document.getElementById("result-detail");
 const meetingTitleInput = document.getElementById("meeting-title");
-const backendUrlInput = document.getElementById("backend-url");
 
 let timerInterval = null;
 let startTime = null;
@@ -32,11 +31,7 @@ let startTime = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   // Restore saved backend URL and recording state
-  chrome.storage.local.get(["backendUrl", "recordingStartTime", "meetingTitle"], (result) => {
-    if (result.backendUrl) {
-      backendUrlInput.value = result.backendUrl;
-    }
-    
+  chrome.storage.local.get(["recordingStartTime", "meetingTitle"], (result) => {
     if (result.meetingTitle) {
       meetingTitleInput.value = result.meetingTitle;
     }
@@ -59,7 +54,6 @@ btnStart.addEventListener("click", async () => {
 
   // Save backend URL and title
   chrome.storage.local.set({ 
-    backendUrl: backendUrlInput.value,
     meetingTitle: meetingTitleInput.value
   });
 
@@ -148,7 +142,7 @@ async function fetchAndUpload() {
       const title = meetingTitleInput.value.trim() || "Live Meeting Capture";
       formData.append("title", title);
 
-      const backendUrl = backendUrlInput.value.trim() || "http://localhost:8000";
+      const backendUrl = "https://nudge-backend-8fri.onrender.com";
 
       progressFill.style.width = "60%";
 
