@@ -9,6 +9,10 @@ import logging
 from datetime import datetime
 
 from backend.services.email_service import send_escalation, send_reminder
+from backend.services.slack_service import (
+    send_escalation_slack,
+    send_reminder_slack,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +91,13 @@ def reminder_node(state: dict) -> dict:
                 action_item_text=item_text,
                 deadline=deadline_display,
             )
+            # Also notify Slack
+            send_escalation_slack(
+                owner_name=owner_name,
+                item_text=item_text,
+                deadline=deadline_display,
+                reminder_count=reminder_count,
+            )
             actions_taken.append(
                 f"🔴 ESCALATED: '{item_text}' (owner: {owner_name}, "
                 f"after {reminder_count} reminders)"
@@ -97,6 +108,13 @@ def reminder_node(state: dict) -> dict:
                 to_email=item["owner_email"],
                 owner_name=owner_name,
                 action_item_text=item_text,
+                deadline=deadline_display,
+                reminder_count=reminder_count,
+            )
+            # Also notify Slack
+            send_reminder_slack(
+                owner_name=owner_name,
+                item_text=item_text,
                 deadline=deadline_display,
                 reminder_count=reminder_count,
             )

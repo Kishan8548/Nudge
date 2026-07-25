@@ -47,3 +47,4 @@ class MeetingAgentState(TypedDict, total=False):
     needs_human_review: bool
     current_action: str
     next_step: str
+    assignment_done: bool   # Set by assignment_node; prevents supervisor re-routing loop

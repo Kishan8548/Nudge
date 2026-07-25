@@ -40,19 +40,21 @@ SUPERVISOR_PROMPT = """You are the supervisor agent for a meeting follow-up syst
 
 Available specialists:
 - **extraction**: Extracts decisions and action items from a meeting transcript. Use when we have a transcript but haven't extracted items yet.
-- **assignment**: Matches action item owners to a team roster and resolves relative deadlines to actual dates. Use after extraction when items need owner/deadline resolution.
+- **assignment**: Matches action item owners to a team roster and resolves relative deadlines to actual dates. Use ONCE after extraction.
 - **reminder**: Checks action items against deadlines and sends reminder emails. Use when the current action is "check_and_remind".
 - **FINISH**: All work for this invocation is complete.
 
 Routing rules:
 1. If current_action is "process_meeting":
    a. No action items extracted yet → "extraction"
-   b. Action items exist but some lack owner_email → "assignment"
-   c. All items fully processed → "FINISH"
+   b. Action items exist AND assignment has NOT been attempted yet → "assignment"
+   c. Assignment already attempted (assignment_done=true) → "FINISH" (even if some owners lack emails — they may simply not be in the roster)
+   d. All items fully processed → "FINISH"
 2. If current_action is "check_and_remind":
    a. First pass → "reminder"
    b. After reminder completes → "FINISH"
 
+CRITICAL: Never route to the same specialist twice in a row. If assignment was already run and owners still lack emails, those names are simply not in the roster — go to FINISH.
 Always explain your reasoning concisely."""
 
 
@@ -67,12 +69,14 @@ def supervisor_node(state: dict) -> dict:
     current_action = state.get("current_action", "process_meeting")
     action_items = state.get("action_items", [])
     transcript = state.get("raw_transcript", "")
+    assignment_done = state.get("assignment_done", False)
 
     # Build context summary for the LLM
     context_lines = [
         f"Current action: {current_action}",
         f"Has transcript: {bool(transcript)} ({len(transcript)} chars)",
         f"Action items count: {len(action_items)}",
+        f"assignment_done: {assignment_done}",
     ]
 
     if action_items:
@@ -132,7 +136,7 @@ def supervisor_node(state: dict) -> dict:
     except Exception as e:
         # Fallback to deterministic routing if LLM fails
         logger.error(f"Supervisor LLM failed: {e} — using deterministic fallback")
-        fallback = _deterministic_route(current_action, action_items, transcript)
+        fallback = _deterministic_route(current_action, action_items, transcript, assignment_done)
 
         return {
             "next_step": fallback,
@@ -160,6 +164,7 @@ def _deterministic_route(
     current_action: str,
     action_items: list,
     transcript: str,
+    assignment_done: bool = False,
 ) -> str:
     """Fallback deterministic routing when the LLM call fails."""
     if current_action == "check_and_remind":
@@ -169,9 +174,11 @@ def _deterministic_route(
         return "extraction"
 
     if action_items:
-        has_unassigned = any(not item.get("owner_email") for item in action_items)
-        if has_unassigned:
-            return "assignment"
+        # Only route to assignment if it hasn't run yet
+        if not assignment_done:
+            has_unassigned = any(not item.get("owner_email") for item in action_items)
+            if has_unassigned:
+                return "assignment"
 
     return "FINISH"
 

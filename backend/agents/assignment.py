@@ -143,5 +143,6 @@ def assignment_node(state: dict) -> dict:
 
     return {
         "action_items": updated_items,
+        "assignment_done": True,   # Prevents supervisor from looping back here
         "messages": [{"role": "assistant", "content": summary}],
     }
