@@ -3,7 +3,11 @@
  * Base URL points to FastAPI running on port 8000.
  */
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+if (baseUrl && baseUrl.endsWith('/')) {
+  baseUrl = baseUrl.slice(0, -1);
+}
+const BASE_URL = baseUrl;
 
 async function request(endpoint, options = {}) {
   const url = `${BASE_URL}${endpoint}`;
