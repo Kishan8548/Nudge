@@ -51,7 +51,7 @@ export default function Dashboard() {
       {/* Stats */}
       <div className="stats-grid stagger-children">
         <div className="stat-card">
-          <div className="stat-icon" style={{ background: 'rgba(108, 99, 255, 0.15)' }}>
+          <div className="stat-icon" style={{ background: 'var(--accent-glow)' }}>
             <FileAudio size={22} color="var(--accent-primary)" />
           </div>
           <div>
@@ -157,7 +157,7 @@ export default function Dashboard() {
           gap: var(--space-sm);
         }
         .meeting-card-icon {
-          color: var(--accent-secondary);
+          color: var(--accent-primary);
           flex-shrink: 0;
         }
         .meeting-card-title {

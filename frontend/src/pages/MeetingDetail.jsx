@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
 import { 
   ArrowLeft, Bot, Sparkles, CheckCircle2, AlertTriangle, 
-  Clock, User, Calendar, Bell, FileText, Loader2
+  Clock, User, Calendar, Bell, FileText, Loader2, GitBranch
 } from 'lucide-react';
 import { api } from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -17,10 +17,20 @@ export default function MeetingDetail() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [activityLogs, setActivityLogs] = useState({});
+  const [similarMeetings, setSimilarMeetings] = useState([]);
 
   useEffect(() => {
     loadMeeting();
   }, [id]);
+
+  async function loadSimilar() {
+    try {
+      const res = await api.getSimilarMeetings(id, 3);
+      setSimilarMeetings(res.similar_meetings || []);
+    } catch {
+      // Non-fatal — RAG index may not be set up yet
+    }
+  }
 
   async function loadMeeting() {
     try {
@@ -57,8 +67,9 @@ export default function MeetingDetail() {
           error: (err) => `❌ ${err.message}`,
         }
       );
-      // Reload meeting to get fresh data
+      // Reload meeting to get fresh data + similar meetings
       await loadMeeting();
+      await loadSimilar();
     } finally {
       setProcessing(false);
     }
@@ -244,6 +255,46 @@ export default function MeetingDetail() {
         </section>
       )}
 
+      {/* Similar Past Meetings (RAG) */}
+      {similarMeetings.length > 0 && (
+        <section className="detail-section">
+          <h2 className="section-title">
+            <GitBranch size={18} />
+            Similar Past Meetings
+            <span className="rag-badge">RAG</span>
+          </h2>
+          <div className="similar-meetings-list stagger-children">
+            {similarMeetings.map((m, i) => (
+              <div
+                key={i}
+                className="similar-meeting-card glass-card"
+                onClick={() => navigate(`/meetings/${m.meeting_id}`)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="similar-meeting-header">
+                  <span className="similar-meeting-title">{m.title}</span>
+                  {m.score != null && (
+                    <span className="similar-score">
+                      {Math.round(m.score * 100)}% match
+                    </span>
+                  )}
+                </div>
+                {m.decisions?.length > 0 && (
+                  <div className="similar-meeting-decisions">
+                    {m.decisions.slice(0, 2).map((d, di) => (
+                      <div key={di} className="similar-decision">
+                        <CheckCircle2 size={12} />
+                        <span>{d}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Transcript */}
       {meeting.raw_transcript && (
         <section className="detail-section">
@@ -308,6 +359,64 @@ export default function MeetingDetail() {
           border-radius: 12px;
           margin-left: var(--space-sm);
         }
+        .rag-badge {
+          font-size: 0.65rem;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          color: var(--accent-primary);
+          background: rgba(13, 148, 136, 0.12);
+          border: 1px solid rgba(13, 148, 136, 0.25);
+          padding: 2px 8px;
+          border-radius: 12px;
+          margin-left: var(--space-sm);
+          text-transform: uppercase;
+        }
+        .similar-meetings-list {
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-sm);
+        }
+        .similar-meeting-card {
+          padding: var(--space-md) var(--space-lg);
+          transition: border-color var(--transition-fast);
+        }
+        .similar-meeting-card:hover {
+          border-color: rgba(13, 148, 136, 0.4);
+        }
+        .similar-meeting-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: var(--space-sm);
+          margin-bottom: var(--space-sm);
+        }
+        .similar-meeting-title {
+          font-weight: 600;
+          font-size: 0.9rem;
+          color: var(--text-primary);
+        }
+        .similar-score {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: var(--accent-primary);
+          background: rgba(13, 148, 136, 0.1);
+          padding: 2px 8px;
+          border-radius: 12px;
+          white-space: nowrap;
+        }
+        .similar-meeting-decisions {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .similar-decision {
+          display: flex;
+          align-items: flex-start;
+          gap: 6px;
+          font-size: 0.8rem;
+          color: var(--text-secondary);
+        }
+        .similar-decision svg { flex-shrink: 0; margin-top: 2px; color: var(--status-done); }
         .decisions-list {
           display: flex;
           flex-direction: column;

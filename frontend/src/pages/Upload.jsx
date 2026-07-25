@@ -41,7 +41,7 @@ export default function UploadPage() {
     onDrop,
     accept: ACCEPTED_TYPES,
     maxFiles: 1,
-    maxSize: 25 * 1024 * 1024, // 25 MB
+    maxSize: 200 * 1024 * 1024, // 200 MB
   });
 
   const handleUpload = async () => {
@@ -129,7 +129,7 @@ export default function UploadPage() {
                   : 'Drag & drop your meeting recording'}
               </div>
               <div className="dropzone-hint">
-                or click to browse • MP3, WAV, MP4, WebM, M4A, OGG, FLAC • Max 25 MB
+                or click to browse • MP3, WAV, MP4, WebM, M4A, OGG, FLAC • Max 200 MB
               </div>
             </div>
           )}
@@ -141,6 +141,7 @@ export default function UploadPage() {
           <input
             id="meeting-title"
             type="text"
+            className="input-field"
             placeholder="e.g., Sprint Planning — July 25"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -194,7 +195,7 @@ export default function UploadPage() {
         }
         .dropzone:hover, .dropzone-active {
           border-color: var(--accent-primary);
-          background: rgba(108, 99, 255, 0.05);
+          background: rgba(13, 148, 136, 0.05);
         }
         .dropzone-active {
           transform: scale(1.01);
@@ -214,7 +215,7 @@ export default function UploadPage() {
           width: 64px;
           height: 64px;
           border-radius: 50%;
-          background: rgba(108, 99, 255, 0.1);
+          background: rgba(13, 148, 136, 0.1);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -263,9 +264,6 @@ export default function UploadPage() {
           color: var(--text-secondary);
           margin-bottom: var(--space-sm);
         }
-        .upload-field input {
-          width: 100%;
-        }
         .upload-progress {
           display: flex;
           align-items: center;
@@ -281,7 +279,7 @@ export default function UploadPage() {
         }
         .progress-fill {
           height: 100%;
-          background: var(--accent-gradient);
+          background: var(--accent-primary);
           border-radius: 3px;
           transition: width 0.5s ease;
         }
