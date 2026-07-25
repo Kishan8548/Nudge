@@ -45,6 +45,10 @@ export function patch(endpoint, data) {
   return request(endpoint, { method: 'PATCH', body: JSON.stringify(data) });
 }
 
+export function del(endpoint) {
+  return request(endpoint, { method: 'DELETE' });
+}
+
 // ----- API functions -----
 
 export const api = {
@@ -66,6 +70,8 @@ export const api = {
   getMeeting: (id) => get(`/api/meetings/${id}`),
 
   processMeeting: (id) => post(`/api/meetings/${id}/process`),
+
+  deleteMeeting: (id) => del(`/api/meetings/${id}`),
 
   // Action Items
   listActionItems: (params = {}) => {

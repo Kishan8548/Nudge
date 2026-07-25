@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { 
   FileAudio, ListChecks, CheckCircle2, AlertTriangle,
-  Calendar, Clock, ChevronRight, Upload 
+  Calendar, Clock, ChevronRight, Upload, Trash2 
 } from 'lucide-react';
 import { api } from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -31,6 +31,21 @@ export default function Dashboard() {
     }
     loadData();
   }, []);
+
+  const handleDeleteMeeting = async (e, id) => {
+    e.stopPropagation(); // prevent triggering the card click
+    if (!window.confirm('Are you sure you want to delete this meeting?')) return;
+    
+    try {
+      await api.deleteMeeting(id);
+      setMeetings(meetings.filter(m => m.id !== id));
+      // Also optimistic UI update for action items associated with this meeting
+      setActionItems(actionItems.filter(ai => ai.meeting_id !== id));
+    } catch (err) {
+      alert('Failed to delete meeting');
+      console.error(err);
+    }
+  };
 
   if (loading) return <LoadingSpinner text="Loading dashboard..." />;
 
@@ -111,6 +126,13 @@ export default function Dashboard() {
               <div className="meeting-card-header">
                 <FileAudio size={18} className="meeting-card-icon" />
                 <h3 className="meeting-card-title">{meeting.title}</h3>
+                <button 
+                  className="icon-btn delete-btn" 
+                  onClick={(e) => handleDeleteMeeting(e, meeting.id)}
+                  title="Delete Meeting"
+                >
+                  <Trash2 size={16} />
+                </button>
                 <ChevronRight size={16} className="meeting-card-arrow" />
               </div>
               <div className="meeting-card-meta">

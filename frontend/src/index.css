@@ -435,3 +435,25 @@ a:hover {
   color: white;
   border-color: var(--accent-primary);
 }
+
+
+/* Delete Button Styles */
+.delete-btn {
+  color: #64748b;
+  opacity: 0;
+  margin-left: auto;
+  margin-right: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+.meeting-card:hover .delete-btn {
+  opacity: 1;
+}
+.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--status-escalated);
+}
