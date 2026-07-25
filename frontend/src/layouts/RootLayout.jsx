@@ -2,20 +2,21 @@ import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router';
 import { 
   LayoutDashboard, Upload, ListChecks, Menu, X, 
-  Zap, Bot 
+  Zap, Bot, BarChart3
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/upload', icon: Upload, label: 'Upload Meeting' },
   { to: '/action-items', icon: ListChecks, label: 'Action Items' },
+  { to: '/analytics', icon: BarChart3, label: 'Analytics' },
 ];
 
 export default function RootLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="app-layout">
+    <div className="app-container">
       {/* Mobile overlay */}
       {mobileOpen && (
         <div className="sidebar-overlay" onClick={() => setMobileOpen(false)} />
@@ -72,17 +73,18 @@ export default function RootLayout() {
 
       <style>{`
         .sidebar {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: var(--sidebar-width);
-          height: 100vh;
-          background: var(--bg-secondary);
+          width: 260px;
+          background: var(--glass-bg);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
           border-right: 1px solid var(--glass-border);
           display: flex;
           flex-direction: column;
-          z-index: 100;
-          transition: transform var(--transition-base);
+          position: sticky;
+          top: 0;
+          height: 100vh;
+          z-index: 10;
+          box-shadow: var(--shadow-sm);
         }
         .sidebar-header {
           padding: var(--space-lg);
@@ -97,7 +99,7 @@ export default function RootLayout() {
           width: 40px;
           height: 40px;
           border-radius: var(--radius-sm);
-          background: var(--accent-gradient);
+          background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -108,10 +110,7 @@ export default function RootLayout() {
           font-size: 1.2rem;
           font-weight: 800;
           letter-spacing: -0.03em;
-          background: var(--accent-gradient);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+          color: var(--text-primary);
         }
         .logo-tag {
           display: block;
@@ -144,8 +143,8 @@ export default function RootLayout() {
           background: var(--glass-bg);
         }
         .sidebar-link-active {
-          color: var(--accent-secondary) !important;
-          background: rgba(108, 99, 255, 0.1) !important;
+          color: var(--accent-primary) !important;
+          background: rgba(13, 148, 136, 0.1) !important;
         }
         .sidebar-link-active::before {
           content: '';
@@ -171,7 +170,8 @@ export default function RootLayout() {
         .sidebar-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0, 0, 0, 0.6);
+          background: rgba(0, 0, 0, 0.4);
+          backdrop-filter: blur(4px);
           z-index: 99;
         }
         .mobile-toggle {
