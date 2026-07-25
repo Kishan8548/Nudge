@@ -16,6 +16,7 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from backend.db.models import ACTION_ITEMS, MEETINGS
 from backend.services.slack_service import send_meeting_processed_slack
 from backend.services.rag_service import store_meeting_embedding
+from backend.services.summary import generate_meeting_summary
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/meetings", tags=["meetings"])
@@ -128,6 +129,13 @@ def process_meeting(request: Request, meeting_id: str):
         db[MEETINGS].update_one(
             {"_id": oid},
             {"$set": {"decisions": decisions, "needs_human_review": needs_review}},
+        )
+
+        # Generate executive summary
+        summary = generate_meeting_summary(meeting.get("raw_transcript", ""))
+        db[MEETINGS].update_one(
+            {"_id": oid},
+            {"$set": {"summary": summary}},
         )
 
         # Insert action items as separate documents
