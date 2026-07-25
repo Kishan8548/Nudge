@@ -32,6 +32,13 @@ class Settings(BaseSettings):
     GMAIL_SENDER_EMAIL: str = ""
     GMAIL_APP_PASSWORD: SecretStr = SecretStr("")
 
+    # --- Slack (Incoming Webhook — optional) ---
+    SLACK_WEBHOOK_URL: str = ""
+    SLACK_ENABLED: bool = False
+
+    # --- Nomic AI (embeddings for RAG) ---
+    NOMIC_API_KEY: SecretStr = SecretStr("")
+
     # --- Scheduler ---
     SCHEDULER_INTERVAL_MINUTES: int = 30
 

@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 # ----- Collection Names -----
 MEETINGS = "meetings"
 ACTION_ITEMS = "action_items"
+MEETING_EMBEDDINGS = "meeting_embeddings"  # RAG vector store
 
 
 def ensure_indexes(db: Database) -> None:
@@ -46,6 +47,20 @@ def ensure_indexes(db: Database) -> None:
     db[ACTION_ITEMS].create_index(
         [("owner_email", ASCENDING), ("status", ASCENDING)],
         name="idx_action_items_owner_status",
+    )
+
+    # Action items: full-text search for RAG fallback
+    db[ACTION_ITEMS].create_index(
+        [("text", "text")],
+        name="idx_action_items_text_search",
+        default_language="english",
+    )
+
+    # Meeting embeddings: look up by meeting_id
+    db[MEETING_EMBEDDINGS].create_index(
+        [("meeting_id", ASCENDING)],
+        name="idx_meeting_embeddings_meeting_id",
+        unique=True,
     )
 
     logger.info("MongoDB indexes ensured")

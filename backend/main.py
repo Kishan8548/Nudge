@@ -24,6 +24,8 @@ from backend.db.connection import close_client, get_client
 from backend.db.models import ensure_indexes
 from backend.agents.graph import build_graph
 from backend.routers import action_items, meetings, upload
+from backend.routers.rag import router as rag_router
+from backend.routers.analytics import router as analytics_router
 from backend.services.scheduler import start_scheduler, stop_scheduler, trigger_reminder_now
 
 # ----- Logging -----
@@ -96,6 +98,9 @@ app = FastAPI(
     ),
     version="0.1.0",
     lifespan=lifespan,
+    # Large audio uploads up to 200 MB are supported via chunked transcription.
+    # Run uvicorn with: --limit-concurrency 10 --timeout-keep-alive 300
+    # for long-running transcription requests (2-hour audio ~= 3-5 min to transcribe).
 )
 
 # CORS middleware for React frontend
@@ -111,6 +116,8 @@ app.add_middleware(
 app.include_router(upload.router)
 app.include_router(meetings.router)
 app.include_router(action_items.router)
+app.include_router(rag_router)
+app.include_router(analytics_router)
 
 
 # --- Utility Endpoints ---
