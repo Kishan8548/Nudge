@@ -103,10 +103,10 @@ app = FastAPI(
     # for long-running transcription requests (2-hour audio ~= 3-5 min to transcribe).
 )
 
-# CORS middleware for React frontend
+# CORS middleware for React frontend and Chrome Extension
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
+    allow_origin_regex=".*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
