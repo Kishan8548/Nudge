@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
 import MeetingDetail from './pages/MeetingDetail';
 import ActionItems from './pages/ActionItems';
+import Analytics from './pages/Analytics';
 import NotFound from './pages/NotFound';
 
 const router = createBrowserRouter([
@@ -16,6 +17,7 @@ const router = createBrowserRouter([
       { path: 'upload', element: <Upload /> },
       { path: 'meetings/:id', element: <MeetingDetail /> },
       { path: 'action-items', element: <ActionItems /> },
+      { path: 'analytics', element: <Analytics /> },
       { path: '*', element: <NotFound /> },
     ],
   },

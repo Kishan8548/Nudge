@@ -90,4 +90,15 @@ export const api = {
 
   // Scheduler
   triggerScheduler: () => post('/api/scheduler/trigger'),
+
+  // RAG / Semantic Search
+  ragSearch: (query, limit = 3) => post('/api/rag/search', { query, limit }),
+  getSimilarMeetings: (meetingId, limit = 3) =>
+    get(`/api/rag/similar/${meetingId}?limit=${limit}`),
+  getSimilarItems: (query, limit = 5) =>
+    get(`/api/rag/similar-items?query=${encodeURIComponent(query)}&limit=${limit}`),
+  getRagSetupInstructions: () => get('/api/rag/setup-instructions'),
+
+  // Analytics
+  getAnalytics: () => get('/api/analytics'),
 };
