@@ -196,6 +196,26 @@ def process_meeting(request: Request, meeting_id: str):
             detail=f"Agent processing failed: {e}",
         )
 
+@router.delete("/{meeting_id}")
+def delete_meeting(request: Request, meeting_id: str):
+    """Delete a meeting and all its associated action items."""
+    db = request.app.state.db
+
+    try:
+        oid = ObjectId(meeting_id)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid meeting ID format")
+
+    # Delete the meeting
+    result = db[MEETINGS].delete_one({"_id": oid})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+
+    # Delete associated action items
+    db[ACTION_ITEMS].delete_many({"meeting_id": oid})
+
+    logger.info(f"Deleted meeting {meeting_id} and associated action items.")
+    return {"status": "success", "detail": "Meeting deleted"}
 
 # ----- Helpers -----
 
