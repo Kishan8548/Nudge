@@ -10,7 +10,7 @@ from datetime import datetime
 from pathlib import Path
 
 from bson import ObjectId
-from fastapi import APIRouter, File, HTTPException, Request, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 
 from backend.config import settings
 from backend.db.models import MEETINGS
@@ -24,7 +24,7 @@ router = APIRouter(prefix="/api", tags=["upload"])
 async def upload_meeting(
     request: Request,
     file: UploadFile = File(...),
-    title: str | None = None,
+    title: str | None = Form(None),
 ):
     """Upload an audio/video file for transcription.
 
