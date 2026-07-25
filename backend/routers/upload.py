@@ -14,12 +14,10 @@ from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 
 from backend.config import settings
 from backend.db.models import MEETINGS
-from backend.services.transcription import SUPPORTED_FORMATS, transcribe_audio
+from backend.services.transcription import SUPPORTED_FORMATS, transcribe_audio, MAX_UPLOAD_SIZE_MB
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["upload"])
-
-MAX_FILE_SIZE_MB = 25
 
 
 @router.post("/upload")
@@ -63,12 +61,16 @@ async def upload_meeting(
     try:
         content = await file.read()
 
-        # Validate file size
+        # Validate file size (up to 200 MB — chunked transcription handles the rest)
         file_size_mb = len(content) / (1024 * 1024)
-        if file_size_mb > MAX_FILE_SIZE_MB:
+        if file_size_mb > MAX_UPLOAD_SIZE_MB:
             raise HTTPException(
                 status_code=400,
-                detail=f"File too large ({file_size_mb:.1f} MB). Max: {MAX_FILE_SIZE_MB} MB",
+                detail=(
+                    f"File too large ({file_size_mb:.1f} MB). "
+                    f"Maximum: {MAX_UPLOAD_SIZE_MB} MB. "
+                    f"Tip: convert to MP3 at 32kbps — a 2-hour meeting becomes ~28 MB."
+                ),
             )
 
         with open(file_path, "wb") as f:
