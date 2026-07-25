@@ -62,3 +62,9 @@ coverage.xml
 *.log
 *.bak
 plan.md
+implementation_plan_mine.md
+
+# ===== Local / Agent =====
+.agent/
+design-system/
+data/
