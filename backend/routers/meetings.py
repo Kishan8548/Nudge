@@ -14,6 +14,8 @@ from bson.errors import InvalidId
 from fastapi import APIRouter, HTTPException, Query, Request
 
 from backend.db.models import ACTION_ITEMS, MEETINGS
+from backend.services.slack_service import send_meeting_processed_slack
+from backend.services.rag_service import store_meeting_embedding
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/meetings", tags=["meetings"])
@@ -161,6 +163,23 @@ def process_meeting(request: Request, meeting_id: str):
         logger.info(
             f"Processed meeting {meeting_id}: "
             f"{len(decisions)} decisions, {len(saved_items)} action items"
+        )
+
+        # Notify Slack channel (non-blocking — failure doesn't affect response)
+        send_meeting_processed_slack(
+            meeting_title=meeting.get("title", "Untitled Meeting"),
+            decisions_count=len(decisions),
+            items_count=len(saved_items),
+            needs_review=needs_review,
+        )
+
+        # Index meeting for RAG similarity search (non-blocking)
+        store_meeting_embedding(
+            db=db,
+            meeting_id=meeting_id,
+            title=meeting.get("title", "Untitled Meeting"),
+            transcript=meeting.get("raw_transcript", ""),
+            decisions=decisions,
         )
 
         return {
