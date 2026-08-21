@@ -167,7 +167,7 @@ class RecordFragment : Fragment() {
         val file = outputFile ?: return
         val durationMs = System.currentTimeMillis() - recordStartTime
 
-        // Check if recording was too short or empty (Edge Case 2.9)
+        // Validate audio duration and file size
         if (durationMs < 1500 || file.length() < MIN_RECORDING_BYTES) {
             file.delete()
             viewModel.reset()
