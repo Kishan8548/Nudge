@@ -25,6 +25,7 @@ async def upload_meeting(
     request: Request,
     file: UploadFile = File(...),
     title: str | None = Form(None),
+    self_name: str | None = Form(None),
 ):
     """Upload an audio/video file for transcription.
 
@@ -35,9 +36,9 @@ async def upload_meeting(
     Args:
         file: Audio/video file (mp3, wav, mp4, webm, m4a, ogg, flac).
         title: Optional meeting title. Defaults to the filename stem.
-
-    Returns:
-        Meeting ID, transcript preview, and metadata.
+        self_name: Optional — your name as spoken in the meeting (e.g. "Suren").
+                   When provided, action items assigned to you are flagged
+                   as ``is_mine=True`` for personal task filtering.
     """
     # --- Validate file extension ---
     file_ext = Path(file.filename).suffix.lower() if file.filename else ""
@@ -104,6 +105,7 @@ async def upload_meeting(
         "audio_file": str(file_path),
         "language": transcript_result.get("language"),
         "duration_seconds": transcript_result.get("duration"),
+        "self_name": self_name,  # who recorded — used to tag is_mine on action items
     }
 
     result = db[MEETINGS].insert_one(meeting_doc)

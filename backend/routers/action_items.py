@@ -53,10 +53,15 @@ def list_action_items(
     request: Request,
     status: str | None = Query(None, description="Filter by status"),
     meeting_id: str | None = Query(None, description="Filter by meeting"),
+    mine: bool = Query(True, description="If true (default), return only your tasks (is_mine=True). Set false to see everyone's tasks."),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
 ):
-    """List action items with optional status and meeting filters."""
+    """List action items with optional status and meeting filters.
+
+    By default returns only YOUR action items (is_mine=True).
+    Pass ``mine=false`` to see all participants' tasks.
+    """
     db = request.app.state.db
 
     query: dict = {}
@@ -67,6 +72,10 @@ def list_action_items(
             query["meeting_id"] = ObjectId(meeting_id)
         except InvalidId:
             raise HTTPException(status_code=400, detail="Invalid meeting ID")
+    if mine:
+        # Default: only show tasks belonging to the recorder (is_mine=True).
+        # Use $ne False so legacy documents without the field still show up.
+        query["is_mine"] = {"$ne": False}
 
     items = list(
         db[ACTION_ITEMS]

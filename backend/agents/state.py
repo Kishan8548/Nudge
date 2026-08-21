@@ -23,6 +23,7 @@ class ActionItemData(TypedDict, total=False):
     status: Literal["pending", "in_progress", "done", "escalated"]
     reminder_count: int
     last_reminded_at: str | None
+    is_mine: bool  # True if assigned to the person who recorded the meeting
 
 
 class MeetingAgentState(TypedDict, total=False):
@@ -48,3 +49,4 @@ class MeetingAgentState(TypedDict, total=False):
     current_action: str
     next_step: str
     assignment_done: bool   # Set by assignment_node; prevents supervisor re-routing loop
+    self_name: str | None  # Name of the person who recorded — used to tag is_mine

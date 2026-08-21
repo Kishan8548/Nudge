@@ -69,15 +69,27 @@ Confidence scoring guidelines:
 Be thorough but precise. Only extract genuine action items, not general discussion points or opinions."""
 
 
+MY_TASKS_SUFFIX = """
+
+IMPORTANT: The person recording this meeting is "{self_name}".
+For the owner field: if a task is assigned to someone whose name matches or sounds like "{self_name}", 
+set owner to "{self_name}" exactly. Extract ALL tasks from the meeting but clearly identify the owner."""
+
+
 # ----- Node Function -----
 
 def extraction_node(state: dict) -> dict:
     """LangGraph node: extract decisions and action items from transcript.
 
-    Reads: raw_transcript
+    Reads: raw_transcript, self_name
     Writes: decisions, action_items, needs_human_review, messages
+
+    If self_name is provided, action items owned by that person are tagged
+    ``is_mine=True``. All others are ``is_mine=False``.
+    If self_name is not provided, all items are ``is_mine=True`` (show everything).
     """
     transcript = state.get("raw_transcript", "")
+    self_name: str | None = state.get("self_name")
     if not transcript:
         logger.warning("No transcript available for extraction")
         return {
@@ -96,9 +108,14 @@ def extraction_node(state: dict) -> dict:
     )
     structured_llm = llm.with_structured_output(ExtractionResult)
 
+    # Build prompt — append self_name context if provided
+    system_prompt = EXTRACTION_PROMPT
+    if self_name:
+        system_prompt += MY_TASKS_SUFFIX.format(self_name=self_name)
+
     try:
         result: ExtractionResult = structured_llm.invoke([
-            SystemMessage(content=EXTRACTION_PROMPT),
+            SystemMessage(content=system_prompt),
             HumanMessage(content=f"Meeting Transcript:\n\n{transcript}"),
         ])
 
@@ -106,6 +123,16 @@ def extraction_node(state: dict) -> dict:
         needs_review = False
 
         for item in result.action_items:
+            # Tag is_mine: True if no self_name set (show all), or if owner matches
+            owner_lower = (item.owner or "").lower().strip()
+            self_lower = (self_name or "").lower().strip()
+            is_mine = (
+                not self_name  # no filter set → everything is "mine"
+                or (owner_lower != "" and self_lower in owner_lower)
+                or (owner_lower != "" and owner_lower in self_lower)
+                or owner_lower == ""  # unassigned items always show to recorder
+            )
+
             ai_dict: dict = {
                 "text": item.text,
                 "owner": item.owner,
@@ -115,6 +142,7 @@ def extraction_node(state: dict) -> dict:
                 "status": "pending",
                 "reminder_count": 0,
                 "last_reminded_at": None,
+                "is_mine": is_mine,
             }
             action_items.append(ai_dict)
 

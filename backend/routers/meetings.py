@@ -115,6 +115,7 @@ def process_meeting(request: Request, meeting_id: str):
                 "decisions": [],
                 "action_items": [],
                 "needs_human_review": False,
+                "self_name": meeting.get("self_name"),  # tag is_mine on extraction
             },
             config=config,
         )
