@@ -56,6 +56,19 @@
             android:foregroundServiceType="microphone"
             android:exported="false" />
 
+        <!-- Home Screen Quick Record Widget -->
+        <receiver
+            android:name=".widget.RecordWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.nudge.ai.widget.ACTION_TOGGLE_RECORDING" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_record_info" />
+        </receiver>
+
         <!-- WorkManager provider -->
         <provider
             android:name="androidx.startup.InitializationProvider"

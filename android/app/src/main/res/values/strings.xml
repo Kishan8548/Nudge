@@ -79,4 +79,5 @@
     <string name="cd_nudge_logo">Nudge AI logo</string>
     <string name="cd_record_button">Record meeting</string>
     <string name="cd_delete_meeting">Delete this meeting</string>
+    <string name="widget_description">Quick record meetings and capture action items from your home screen</string>
 </resources>

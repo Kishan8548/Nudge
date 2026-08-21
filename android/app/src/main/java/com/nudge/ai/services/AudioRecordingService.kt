@@ -134,11 +134,13 @@ class AudioRecordingService : Service() {
             }
 
             timerHandler.post(notificationUpdateRunnable)
+            com.nudge.ai.widget.RecordWidgetProvider.updateAllWidgets(this, isRecording = true, durationText = "00:00")
             Log.i(TAG, "Audio recording started in foreground service")
 
         } catch (e: Exception) {
             Log.e(TAG, "Failed to start MediaRecorder: ${e.message}", e)
             _recordingState.value = ServiceState.Error(e.message ?: "Failed to start microphone")
+            com.nudge.ai.widget.RecordWidgetProvider.updateAllWidgets(this, isRecording = false)
             stopSelf()
         }
     }
@@ -146,6 +148,7 @@ class AudioRecordingService : Service() {
     private fun stopRecording() {
         timerHandler.removeCallbacks(notificationUpdateRunnable)
         abandonAudioFocus()
+        com.nudge.ai.widget.RecordWidgetProvider.updateAllWidgets(this, isRecording = false)
 
         try {
             mediaRecorder?.apply {
@@ -172,9 +175,13 @@ class AudioRecordingService : Service() {
 
     private fun updateNotification() {
         val elapsedSec = (System.currentTimeMillis() - startTimeMs) / 1000
+        val m = elapsedSec / 60
+        val s = elapsedSec % 60
+        val timeStr = String.format(java.util.Locale.US, "%02d:%02d", m, s)
         val notification = buildNotification(elapsedSec)
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.notify(NOTIFICATION_ID, notification)
+        com.nudge.ai.widget.RecordWidgetProvider.updateAllWidgets(this, isRecording = true, durationText = timeStr)
     }
 
     private fun buildNotification(elapsedSeconds: Long): Notification {
