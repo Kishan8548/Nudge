@@ -89,7 +89,7 @@ class MeetingDetailFragment : Fragment() {
                 val tv = LayoutInflater.from(requireContext())
                     .inflate(R.layout.item_decision, binding.containerDecisions, false)
                         as android.widget.TextView
-                tv.text = "· ${decision.text}"
+                tv.text = "· $decision"
                 binding.containerDecisions.addView(tv)
             }
         } else {

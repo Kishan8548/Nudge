@@ -113,15 +113,19 @@ class MeetingRepository(
     private suspend fun <T> safeCall(block: suspend () -> T): Result<T> = try {
         Result.success(block())
     } catch (e: com.google.gson.JsonSyntaxException) {
-        // Server returned HTML instead of JSON (Render cold-start)
+        android.util.Log.e("MeetingRepository", "JsonSyntaxException: ${e.message}", e)
         Result.failure(Exception("Server is waking up — pull to refresh in a moment"))
     } catch (e: com.google.gson.stream.MalformedJsonException) {
+        android.util.Log.e("MeetingRepository", "MalformedJsonException: ${e.message}", e)
         Result.failure(Exception("Server is waking up — pull to refresh in a moment"))
     } catch (e: java.net.SocketTimeoutException) {
+        android.util.Log.e("MeetingRepository", "SocketTimeoutException: ${e.message}", e)
         Result.failure(Exception("Request timed out — server may be starting up"))
     } catch (e: java.io.EOFException) {
+        android.util.Log.e("MeetingRepository", "EOFException: ${e.message}", e)
         Result.failure(Exception("Server is waking up — pull to refresh in a moment"))
     } catch (e: Exception) {
+        android.util.Log.e("MeetingRepository", "API Exception: ${e.message}", e)
         Result.failure(e)
     }
 

@@ -4,38 +4,34 @@ import com.google.gson.annotations.SerializedName
 
 /** Single meeting returned by GET /api/meetings and GET /api/meetings/{id} */
 data class Meeting(
-    @SerializedName("id")          val id: String,
-    @SerializedName("title")       val title: String,
-    @SerializedName("summary")     val summary: String? = null,
-    @SerializedName("created_at")  val createdAt: String,
-    @SerializedName("duration_seconds") val durationSeconds: Int? = null,
-    @SerializedName("language")    val language: String? = null,
-    @SerializedName("decisions")   val decisions: List<Decision>? = null,
+    @SerializedName("id")               val id: String,
+    @SerializedName("title")            val title: String,
+    @SerializedName("summary")          val summary: String? = null,
+    @SerializedName("created_at")       val createdAt: String,
+    @SerializedName("duration_seconds") val durationSeconds: Double? = null,
+    @SerializedName("language")         val language: String? = null,
+    @SerializedName("decisions")        val decisions: List<String>? = null,
     @SerializedName("needs_human_review") val needsHumanReview: Boolean = false,
+    @SerializedName("self_name")        val selfName: String? = null,
     // Populated only on detail endpoint
-    @SerializedName("action_items") val actionItems: List<ActionItem>? = null
-)
-
-/** A decision extracted by the AI agent */
-data class Decision(
-    @SerializedName("text")       val text: String,
-    @SerializedName("confidence") val confidence: Double = 1.0
+    @SerializedName("action_items")     val actionItems: List<ActionItem>? = null
 )
 
 /** An action item extracted from a meeting */
 data class ActionItem(
-    @SerializedName("id")              val id: String,
-    @SerializedName("meeting_id")      val meetingId: String,
-    @SerializedName("text")            val text: String,
-    @SerializedName("owner_name")      val ownerName: String? = null,
-    @SerializedName("owner_email")     val ownerEmail: String? = null,
-    @SerializedName("deadline")        val deadline: String? = null,
-    @SerializedName("confidence")      val confidence: Double = 1.0,
-    @SerializedName("status")          val status: String = "pending",
-    @SerializedName("reminder_count")  val reminderCount: Int = 0,
+    @SerializedName("id")               val id: String,
+    @SerializedName("meeting_id")       val meetingId: String,
+    @SerializedName("text")             val text: String,
+    @SerializedName("owner_name")       val ownerName: String? = null,
+    @SerializedName("owner_email")      val ownerEmail: String? = null,
+    @SerializedName("deadline")         val deadline: String? = null,
+    @SerializedName("confidence")       val confidence: Double = 1.0,
+    @SerializedName("status")           val status: String = "pending",
+    @SerializedName("reminder_count")   val reminderCount: Int = 0,
     @SerializedName("last_reminded_at") val lastRemindedAt: String? = null,
-    @SerializedName("created_at")      val createdAt: String? = null,
-    @SerializedName("activity_log")    val activityLog: List<ActivityLogEntry>? = null
+    @SerializedName("created_at")       val createdAt: String? = null,
+    @SerializedName("is_mine")          val isMine: Boolean = true,
+    @SerializedName("activity_log")     val activityLog: List<ActivityLogEntry>? = null
 ) {
     val isPending: Boolean get() = status == "pending"
     val isDone: Boolean get() = status == "done"

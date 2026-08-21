@@ -87,8 +87,8 @@ Thumbs.db
 Desktop.ini
 
 # ===== Data / Audio =====
-data/uploads/
-data/sample_meetings/
+/data/uploads/
+/data/sample_meetings/
 *.mp3
 *.wav
 *.mp4
@@ -123,4 +123,6 @@ implementation_plan_mine.md
 # ===== Local / Agent =====
 .agent/
 design-system/
-data/
+/data/
+/data/uploads/
+/data/sample_meetings/
