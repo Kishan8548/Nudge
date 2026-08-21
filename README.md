@@ -1,179 +1,178 @@
 <div align="center">
+  <img src="screenshots/logo.svg" width="96" height="96" alt="Nudge AI Logo" />
   <h1>Nudge AI</h1>
-  <p><b>AI Meeting Follow-Up Agent · Full-Stack + Android</b></p>
-  <p>A multi-platform system that captures meeting audio, extracts action items with a multi-agent AI pipeline, assigns owners, and autonomously follows up until every task is done.</p>
+  <p><b>Autonomous Meeting Intelligence & Personal Task Follow-Up System</b></p>
+  <p>Captures live audio from meetings, extracts decisions & personal action items with LangGraph, assigns owners, and delivers smart deadline alerts & automated escalating follow-ups.</p>
   <br/>
+
   <a href="https://nudge-three-coral.vercel.app/">
-    <img src="https://img.shields.io/badge/Live%20Demo-nudge--three--coral.vercel.app-0D9488?style=for-the-badge" alt="Live Demo" />
+    <img src="https://img.shields.io/badge/Live%20Demo-nudge--three--coral.vercel.app-00A896?style=for-the-badge&logo=vercel" alt="Live Demo" />
   </a>
   &nbsp;
-  <img src="https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi" />
-  <img src="https://img.shields.io/badge/LangGraph-Multi--Agent-6366f1?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Android-Kotlin-3DDC84?style=for-the-badge&logo=android" />
-  <img src="https://img.shields.io/badge/React-Frontend-61DAFB?style=for-the-badge&logo=react" />
+  <a href="https://nudge-backend-8fri.onrender.com/docs">
+    <img src="https://img.shields.io/badge/API%20Docs-FastAPI%20Swagger-009688?style=for-the-badge&logo=fastapi" alt="API Docs" />
+  </a>
+  <br/><br/>
+
+  <img src="https://img.shields.io/badge/Android-Kotlin%20%7C%20WorkManager-3DDC84?style=flat-square&logo=android" />
+  <img src="https://img.shields.io/badge/Backend-FastAPI%20%7C%20Python%203.11-009688?style=flat-square&logo=fastapi" />
+  <img src="https://img.shields.io/badge/AI%20Engine-LangGraph%20%7C%20Groq%20Llama%203.3-6366F1?style=flat-square" />
+  <img src="https://img.shields.io/badge/STT-Groq%20Whisper%20Large%20v3-00A896?style=flat-square" />
+  <img src="https://img.shields.io/badge/Database-MongoDB%20Atlas-47A248?style=flat-square&logo=mongodb" />
+  <img src="https://img.shields.io/badge/Frontend-React%20%7C%20Vite-61DAFB?style=flat-square&logo=react" />
 </div>
 
 ---
 
-## What is Nudge AI?
+## 📱 Screenshots
 
-Meetings generate decisions and action items constantly, but the moment a call ends, most of it goes untracked — no one is sure who owes what or by when, and follow-ups rarely happen without manual chasing.
+> Paste your screenshots into the [`screenshots/`](./screenshots) directory (`home.png`, `detail.png`, `record.png`, `action_items.png`, `dashboard.png`) to showcase them here.
 
-**Nudge AI** solves this with a **Multi-Agent Reasoning Engine** that captures your meeting, understands it, and keeps everyone accountable — automatically.
+| Android Home Screen | Meeting Detail & Summary | Audio Recording Screen |
+|:---:|:---:|:---:|
+| <img src="screenshots/home.png" width="260" alt="Home Screen" /> | <img src="screenshots/detail.png" width="260" alt="Meeting Detail" /> | <img src="screenshots/record.png" width="260" alt="Recording Screen" /> |
 
----
-
-## Platform Overview
-
-| Platform | Technology | Purpose |
-|---|---|---|
-| **Android App** | Kotlin + XML + Retrofit | Native mobile — record meetings, review action items, approve/reject AI decisions |
-| **Web Dashboard** | React + Vite | Full command center — analytics, meetings, HITL review |
-| **Chrome Extension** | Manifest V3 + Offscreen API | Live browser audio capture from Meet / Zoom / any tab |
-| **Backend** | FastAPI + LangGraph + MongoDB | Multi-agent pipeline, reminder scheduler, RAG search |
+| Action Items & Deadlines | Web Dashboard Overview |
+|:---:|:---:|
+| <img src="screenshots/action_items.png" width="260" alt="Action Items" /> | <img src="screenshots/dashboard.png" width="500" alt="Web Dashboard" /> |
 
 ---
 
-## System Architecture
+## 💡 What is Nudge AI?
+
+Meetings produce critical decisions and commitments, but after the call ends, tasks get buried in transcripts and forgotten. 
+
+**Nudge AI** solves this by focusing on **your personal action items** and **automated accountability**:
+1. **Focus on *Your* Tasks:** Automatically tags tasks assigned to you (`is_mine=True`) so you immediately see what you owe without sifting through everyone else's notes.
+2. **Local & Push Notifications:** Android WorkManager monitors approaching deadlines and alerts you 24h/2h in advance.
+3. **Escalating Follow-Up Loop:** Uncompleted action items trigger gentle $\rightarrow$ firm $\rightarrow$ urgent emails to owners and Slack alerts until marked done.
+4. **Human-in-the-Loop (HITL):** Extractions with confidence $< 0.7$ are flagged for one-tap approval before reminders fire.
+
+---
+
+## 🏗️ Architecture & Multi-Agent Flow
 
 ```mermaid
 graph TD
-    subgraph Clients ["Client Platforms"]
-        Android["Android App (Kotlin)"]
-        Web["React Web Dashboard"]
-        Ext["Chrome Extension (MV3)"]
+    subgraph Clients ["Client Layer"]
+        Android["📱 Android App (Kotlin + WorkManager)"]
+        Web["💻 React Web Dashboard"]
+        Ext["🧩 Chrome Extension (MV3 Offscreen)"]
     end
 
-    subgraph Backend ["FastAPI Backend (Render)"]
-        API["REST API"]
-        Chunk["Audio Chunking Algorithm"]
-        Scheduler["APScheduler — Email Reminders"]
+    subgraph API ["Backend Layer (FastAPI on Render)"]
+        UploadRouter["POST /api/upload"]
+        MeetingsRouter["GET/POST /api/meetings"]
+        AIRouter["GET/PATCH /api/action-items"]
+        Scheduler["APScheduler Background Worker"]
     end
 
     subgraph Agents ["LangGraph Multi-Agent Engine"]
-        Super["Supervisor Agent"]
-        Extract["Extraction Specialist"]
-        Assign["Assignment Engine"]
+        Supervisor["🧠 Supervisor Agent"]
+        Extraction["📝 Extraction Specialist"]
+        Assignment["👤 Roster Assignment & Date Resolver"]
+        Summary["📑 Executive Summary Generator"]
     end
 
-    subgraph Storage ["Data & Intelligence"]
-        Mongo[(MongoDB Atlas)]
-        RAG["Nomic Semantic Search (RAG)"]
+    subgraph Storage ["Database & Search"]
+        Mongo[(🍃 MongoDB Atlas)]
+        RAG["🔍 Nomic Semantic Embeddings"]
     end
 
-    Android -->|Upload .m4a| API
-    Ext -->|Upload .webm| API
-    Web <-->|REST| API
+    Android -->|Record M4A| UploadRouter
+    Ext -->|Capture WebM| UploadRouter
+    Web <-->|REST API| MeetingsRouter
 
-    API --> Chunk
-    Chunk -->|Groq Whisper| Super
-    Super <--> Extract
-    Super <--> Assign
+    UploadRouter -->|Chunked Audio| Supervisor
+    Supervisor <--> Extraction
+    Supervisor <--> Assignment
+    Supervisor --> Summary
 
-    Agents -->|Persist| Mongo
-    Agents -->|Embed| RAG
-    Scheduler -->|Gmail SMTP| Mongo
+    Agents -->|Persist Meetings & Tasks| Mongo
+    Agents -->|Index Embeddings| RAG
+    Scheduler -->|Escalating Reminders| Mongo
 ```
 
 ---
 
-## Key Features
+## 🌟 Core Features
 
-1. **🎙️ Multi-Platform Audio Capture** — Android MediaRecorder (M4A) + Chrome Extension (WebM Offscreen API) → same backend pipeline
-2. **🤖 LangGraph Multi-Agent Engine** — Supervisor orchestrates Extraction + Assignment specialists with confidence scoring
-3. **📋 Action Item Extraction** — Decisions, owners, deadlines extracted and scored with `confidence: 0.0–1.0`
-4. **👤 Fuzzy Owner Assignment** — AI fuzzy-matches spoken names to a team roster with email addresses
-5. **📅 Relative Deadline Resolution** — "by next Friday" → `2026-08-28T17:00:00` automatically
-6. **🔁 Human-in-the-Loop (HITL)** — Confidence < 0.7 → flagged for Approve / Reject before reminders fire
-7. **📧 Autonomous Reminder Loop** — APScheduler escalates emails every 24h until item is marked done
-8. **🔍 RAG Semantic Search** — Nomic embeddings in MongoDB Atlas Vector Search for meaning-based queries
-9. **📊 Analytics Dashboard** — Real-time charts for pending vs. completed, escalation rates, reminder cadence
+- 🎙️ **Multi-Platform Audio Capture:** Record natively on Android (`MediaRecorder`), upload files on Web (up to 200MB chunked), or capture live tab audio via Chrome Extension.
+- ⚡ **Lightning Fast Speech-to-Text:** Transcribes audio via Groq Whisper Large v3 with automatic 20MB chunking.
+- 🤖 **LangGraph Reasoning Pipeline:** Pydantic-structured outputs extract key decisions, assignees, and deadlines with confidence scores.
+- 📅 **Smart Date Resolution:** Translates natural language dates (*"by next Tuesday at 4pm"*, *"by Friday morning"*) into exact ISO timestamps.
+- 🔔 **Autonomous Follow-Ups:** Periodic email reminders escalate from gentle reminders to urgent manager notifications after repeated missed deadlines.
+- 🛡️ **Production Reliability:** Exponential backoff retry on Groq rate limits, SHA-256 duplicate meeting detection, and 24/7 Render keepalive automation.
 
 ---
 
-## Android App — Screenshots & Features
-
-The native Android app (Kotlin + XML) mirrors the web dashboard with an OLED-dark design system matching the brand:
-
-- **Meetings Screen** — List all recorded sessions with decisions, duration, and review badges
-- **Record Screen** — One-tap recording with animated pulse button → uploads M4A → auto-navigates to detail
-- **Meeting Detail** — Summary, decisions list, action items with Approve / Reject / Mark Done
-- **Action Items** — Filter by All / Pending / Done / Needs Review, confidence progress bars
-
----
-
-## Tech Stack
+## 🛠️ Tech Stack
 
 | Layer | Technologies |
 |---|---|
-| **Android** | Kotlin, XML Layouts, ViewBinding, Retrofit 2, OkHttp, Navigation Component, Lifecycle/ViewModel, Coroutines, Material 3 |
-| **Frontend** | React 18, Vite, React Router v6, Recharts, Lucide React |
-| **Backend** | Python 3.11, FastAPI, LangGraph, APScheduler, Groq (Whisper + LLaMA), Nomic Embeddings |
-| **Database** | MongoDB Atlas, Atlas Vector Search |
-| **Extension** | Chrome Manifest V3, Offscreen Document API, MediaRecorder |
-| **Infra** | Render (backend), Vercel (frontend), GitHub |
+| **Android** | Kotlin, Material3, View Binding, Retrofit2, Coroutines, AndroidX WorkManager, Notifications API |
+| **Backend** | Python 3.11, FastAPI, LangGraph, LangChain, Pydantic v2, APScheduler, PyMongo |
+| **AI Models** | Groq (`llama-3.3-70b-versatile`, `whisper-large-v3-turbo`), Nomic Embeddings |
+| **Frontend** | React 18, Vite, React Router v7, Lucide Icons, React Hot Toast |
+| **Database** | MongoDB Atlas M0 (Optimized schema, no binary audio in DB) |
+| **Deployment** | Render (Backend), Vercel (Web Dashboard), GitHub Actions (Keepalive Cron) |
 
 ---
 
-## Getting Started
+## ⚡ Quick Start
 
-### Backend (FastAPI)
+### 1. Backend (FastAPI)
 ```bash
-git clone https://github.com/Kishan8548/Nudge
+# Clone repository
+git clone https://github.com/Kishan8548/Nudge.git
 cd Nudge
 
-python -m venv .venv
-.venv\Scripts\activate        # Windows
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 
-# Add your keys to .env (GROQ_API_KEY, MONGODB_URI, GMAIL_USER, etc.)
+# Configure environment variables
+cp .env.example .env
+# Edit .env with your GROQ_API_KEY and MONGODB_URI
+
+# Run development server
 uvicorn backend.main:app --reload --port 8000
 ```
 
-### Frontend (React)
+### 2. Frontend (React + Vite)
 ```bash
 cd frontend
 npm install
-npm run dev   # → http://localhost:5173
+npm run dev
 ```
 
-### Android App
-1. Open `Nudge/android/` in **Android Studio**
-2. Sync Gradle (all dependencies auto-resolve)
-3. Run on device or emulator (API 26+)
-
-> **Backend URL** is set in [`RetrofitClient.kt`](android/app/src/main/java/com/nudge/ai/data/api/RetrofitClient.kt) — update `BASE_URL` to point to your local or deployed backend.
-
-### Chrome Extension
-1. Go to `chrome://extensions/` → Enable Developer Mode
-2. Click **Load unpacked** → select `Nudge/extension/`
-3. Click extension icon → **Start Capture**
+### 3. Android App
+1. Open the [`android/`](./android) folder in **Android Studio**.
+2. Sync Gradle files (`build.gradle.kts`).
+3. Set your backend URL in `RetrofitClient.kt` (defaults to production Render backend).
+4. Run on an Android device or emulator with API 26+.
 
 ---
 
-## Project Structure
+## 📡 API Reference
 
-```
-Nudge/
-├── backend/          FastAPI + LangGraph agents
-│   ├── agents/       Supervisor, extraction, assignment agents
-│   ├── routers/      meetings, action-items, upload, analytics, RAG
-│   └── db/           MongoDB models
-├── frontend/         React + Vite web dashboard
-│   └── src/pages/    Landing, Dashboard, MeetingDetail, Analytics
-├── android/          Native Kotlin Android app
-│   └── app/src/main/
-│       ├── java/com/nudge/ai/
-│       │   ├── data/   Models, Retrofit API, Repository
-│       │   └── ui/     Home, Record, Detail, ActionItems fragments
-│       └── res/        Layouts, drawables, themes, nav graph
-└── extension/        Chrome Manifest V3 extension
-    ├── offscreen.html  MediaRecorder audio capture
-    └── popup.js        Extension UI + chunked upload
-```
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/upload` | Upload audio file (`.m4a`, `.mp3`, `.webm`) & transcribe |
+| `GET` | `/api/meetings` | List all meetings with decisions and durations |
+| `GET` | `/api/meetings/{id}` | Get full meeting detail, transcript, and action items |
+| `POST` | `/api/meetings/{id}/process` | Run LangGraph multi-agent extraction pipeline |
+| `DELETE` | `/api/meetings/{id}` | Cascade delete meeting, action items, and embeddings |
+| `GET` | `/api/action-items?mine=true` | List pending action items filtered by assignee |
+| `PATCH` | `/api/action-items/{id}` | Update status (`pending`, `in_progress`, `done`) |
+| `POST` | `/api/action-items/{id}/remind` | Trigger on-demand email reminder |
+| `GET` | `/api/health` | Service health & keepalive ping |
 
 ---
 
-<div align="center">
-  <i>AI that turns meetings into accountability.</i>
-</div>
+## 📄 License
+
+MIT License. Built for the Hackathon Demo.
