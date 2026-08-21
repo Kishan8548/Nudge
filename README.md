@@ -24,17 +24,11 @@
 
 ---
 
-## 📱 Screenshots
+## 📱 App Screenshots
 
-> Paste your screenshots into the [`screenshots/`](./screenshots) directory (`home.png`, `detail.png`, `record.png`, `action_items.png`, `dashboard.png`) to showcase them here.
-
-| Android Home Screen | Meeting Detail & Summary | Audio Recording Screen |
-|:---:|:---:|:---:|
-| <img src="screenshots/home.png" width="260" alt="Home Screen" /> | <img src="screenshots/detail.png" width="260" alt="Meeting Detail" /> | <img src="screenshots/record.png" width="260" alt="Recording Screen" /> |
-
-| Action Items & Deadlines | Web Dashboard Overview |
-|:---:|:---:|
-| <img src="screenshots/action_items.png" width="260" alt="Action Items" /> | <img src="screenshots/dashboard.png" width="500" alt="Web Dashboard" /> |
+| 📋 Meetings List | 🎙️ Audio Recording | ⏳ Action Items | 💡 Empty State |
+|:---:|:---:|:---:|:---:|
+| <img src="screenshots/home.png" width="220" alt="Meetings List" /> | <img src="screenshots/record.png" width="220" alt="Record Meeting" /> | <img src="screenshots/action_items.png" width="220" alt="Action Items" /> | <img src="screenshots/home_empty.png" width="220" alt="Empty State" /> |
 
 ---
 
