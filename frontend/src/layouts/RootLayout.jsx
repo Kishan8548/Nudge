@@ -5,6 +5,8 @@ import {
   Zap, Bot, BarChart3
 } from 'lucide-react';
 
+import NudgeLogo from '../components/NudgeLogo';
+
 const NAV_ITEMS = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/dashboard/upload', icon: Upload, label: 'Upload Meeting' },
@@ -26,9 +28,7 @@ export default function RootLayout() {
       <aside className={`sidebar ${mobileOpen ? 'sidebar-open' : ''}`}>
         <div className="sidebar-header">
           <div className="sidebar-logo">
-            <div className="logo-icon">
-              <Bot size={22} />
-            </div>
+            <NudgeLogo size={34} />
             <div className="logo-text">
               <span className="logo-name">Nudge</span>
               <span className="logo-tag">AI Agent</span>

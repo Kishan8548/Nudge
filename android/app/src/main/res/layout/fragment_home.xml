@@ -18,31 +18,45 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:paddingStart="24dp"
             android:paddingEnd="24dp"
             android:paddingTop="24dp"
             android:paddingBottom="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Nudge AI"
-                android:textColor="@color/teal_primary"
-                android:textSize="11sp"
-                android:letterSpacing="0.12"
-                android:textAllCaps="true"
-                android:fontFamily="sans-serif-medium" />
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/meetings_title"
-                android:textColor="@color/text_primary"
-                android:textSize="26sp"
-                android:fontFamily="sans-serif-black"
-                android:letterSpacing="-0.02"
-                android:layout_marginTop="4dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nudge AI"
+                    android:textColor="@color/teal_primary"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.12"
+                    android:textAllCaps="true"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/meetings_title"
+                    android:textColor="@color/text_primary"
+                    android:textSize="26sp"
+                    android:fontFamily="sans-serif-black"
+                    android:letterSpacing="-0.02"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:src="@drawable/ic_nudge_logo"
+                android:contentDescription="@string/cd_nudge_logo" />
 
         </LinearLayout>
 

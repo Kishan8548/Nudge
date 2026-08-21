@@ -5,7 +5,7 @@ import {
   GitBranch, Zap, Shield, Search, Users, Clock,
   ExternalLink, BarChart3, CheckCircle2, ArrowRight,
   FileAudio, ListChecks, AlertTriangle, Activity
-} from 'lucide-react';
+import NudgeLogo from '../components/NudgeLogo';
 
 /* ─── Intersection Observer Hook ─── */
 function useReveal() {
@@ -120,7 +120,7 @@ export default function Landing() {
       <header className={`lp-nav ${scrolled ? 'lp-nav-scrolled' : ''}`}>
         <div className="lp-nav-inner">
           <a href="/" className="lp-brand">
-            <span className="lp-brand-icon"><Bot size={16} strokeWidth={2.5} /></span>
+            <NudgeLogo size={30} />
             <span className="lp-brand-name">Nudge</span>
             <span className="lp-brand-tag">AI</span>
           </a>
