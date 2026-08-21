@@ -1,62 +1,56 @@
 <div align="center">
-  <img src="https://img.shields.io/badge/Submission-InnovaHack%20Chapter%201-1d4ed8?style=for-the-badge" alt="InnovaHack Chapter 1 Submission" />
-  <img src="https://img.shields.io/badge/Domain-Agentic%20AI-0D9488?style=for-the-badge" alt="Agentic AI Domain" />
-  <br/><br/>
   <h1>Nudge AI</h1>
-  <p><b>Problem Statement 2: AI Meeting & Follow-Up Agent</b></p>
-  <p>A multi-agent system that lives in your browser, transcribes meetings on the fly, extracts decisions, and autonomously sends reminders until every action item is marked complete.</p>
+  <p><b>AI Meeting Follow-Up Agent · Full-Stack + Android</b></p>
+  <p>A multi-platform system that captures meeting audio, extracts action items with a multi-agent AI pipeline, assigns owners, and autonomously follows up until every task is done.</p>
   <br/>
-  <p><b>Live Demo:</b> <a href="https://nudge-three-coral.vercel.app/">https://nudge-three-coral.vercel.app/</a></p>
+  <a href="https://nudge-three-coral.vercel.app/">
+    <img src="https://img.shields.io/badge/Live%20Demo-nudge--three--coral.vercel.app-0D9488?style=for-the-badge" alt="Live Demo" />
+  </a>
+  &nbsp;
+  <img src="https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi" />
+  <img src="https://img.shields.io/badge/LangGraph-Multi--Agent-6366f1?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Android-Kotlin-3DDC84?style=for-the-badge&logo=android" />
+  <img src="https://img.shields.io/badge/React-Frontend-61DAFB?style=for-the-badge&logo=react" />
 </div>
 
 ---
 
-## Overview
+## What is Nudge AI?
 
-**Nudge AI** is a next-generation meeting observability and accountability platform.
+Meetings generate decisions and action items constantly, but the moment a call ends, most of it goes untracked — no one is sure who owes what or by when, and follow-ups rarely happen without manual chasing.
 
-Meetings generate decisions and action items constantly, but the moment the call ends, most of it goes untracked — no one is quite sure who owes what, by when, and follow-ups rarely happen unless someone manually chases them.
-
-**Nudge AI** solves this exact problem by introducing a **Multi-Agent Reasoning Engine**. 
-
-We built a custom Chrome Extension that captures tab audio live from Google Meet, Zoom, or any browser tab. When the meeting ends, it uploads the audio via a custom chunking algorithm to our FastAPI backend. There, our LangGraph multi-agent system transcribes the audio, extracts business decisions, assigns tasks to team members by fuzzy-matching names to a roster, resolves relative dates (e.g., "by next Friday") into precise ISO deadlines, and tracks them on a stunning Serenity Dark dashboard. If it's unsure about a task, it flags it for human review.
+**Nudge AI** solves this with a **Multi-Agent Reasoning Engine** that captures your meeting, understands it, and keeps everyone accountable — automatically.
 
 ---
 
-## Addressing the Problem Statement
+## Platform Overview
 
-We directly tackled the exact requirements of **Problem Statement 2** by building a complete end-to-end pipeline:
-
-- **Transcript/action-item extraction:** Custom Chrome Extension captures audio live, chunks it, and uses Whisper + LangGraph to meticulously extract tasks and decisions.
-- **Owner and deadline assignment:** The Assignment Agent fuzzy-matches spoken names to internal team rosters and resolves casual deadlines ("by next Friday") into strict ISO dates.
-- **Automated reminder/follow-up loop:** An APScheduler chron job runs continuously on the FastAPI backend, utilizing Gmail SMTP to autonomously nag assignees with escalating urgency until the task is marked done.
-- **Simple dashboard of pending vs. completed items:** A stunning "Serenity Dark" React dashboard providing a command center view of all meetings, pending items, and completed tasks.
-
-### Hitting the Judging Criteria
-- **Innovation & Technical Depth**: Moving beyond simple LLM wrappers, we built a deterministic multi-agent workflow using LangGraph, complete with a custom audio-chunking algorithm to bypass the 25MB API limit for massive 200MB meeting files.
-- **Engineering Quality**: A robust Python/FastAPI backend paired with a seamless Manifest V3 Chrome Extension that uses Offscreen Documents to bypass service worker suspension limits.
-- **Design & User Experience**: Our React frontend uses a meticulously crafted glassmorphism aesthetic. It acts as a high-stakes command center, transforming raw JSON traces into an intuitive, visually stunning experience.
-- **Execution Quality & Completeness**: From the Chrome Extension capturing live audio, to the fully functional multi-agent engine, automated email loop, RAG semantic search, and interactive web app, the project is a complete product built in 24 hours.
+| Platform | Technology | Purpose |
+|---|---|---|
+| **Android App** | Kotlin + XML + Retrofit | Native mobile — record meetings, review action items, approve/reject AI decisions |
+| **Web Dashboard** | React + Vite | Full command center — analytics, meetings, HITL review |
+| **Chrome Extension** | Manifest V3 + Offscreen API | Live browser audio capture from Meet / Zoom / any tab |
+| **Backend** | FastAPI + LangGraph + MongoDB | Multi-agent pipeline, reminder scheduler, RAG search |
 
 ---
 
 ## System Architecture
 
-The Nudge ecosystem is built on four core pillars, designed for extreme concurrency, precise extraction, and AI-driven accountability.
-
 ```mermaid
 graph TD
-    subgraph Capture ["Live Browser Capture"]
-        Ext["Chrome Extension (Manifest V3)"]
-        OD["Offscreen Document (MediaRecorder)"]
+    subgraph Clients ["Client Platforms"]
+        Android["Android App (Kotlin)"]
+        Web["React Web Dashboard"]
+        Ext["Chrome Extension (MV3)"]
     end
 
-    subgraph Backend ["Real-Time Infra (FastAPI)"]
-        API["REST Endpoints"]
+    subgraph Backend ["FastAPI Backend (Render)"]
+        API["REST API"]
         Chunk["Audio Chunking Algorithm"]
+        Scheduler["APScheduler — Email Reminders"]
     end
 
-    subgraph Agents ["Multi-Agent Engine"]
+    subgraph Agents ["LangGraph Multi-Agent Engine"]
         Super["Supervisor Agent"]
         Extract["Extraction Specialist"]
         Assign["Assignment Engine"]
@@ -64,110 +58,122 @@ graph TD
 
     subgraph Storage ["Data & Intelligence"]
         Mongo[(MongoDB Atlas)]
-        UI["React Dashboard (Serenity Dark)"]
-        RAG["Nomic Semantic Search"]
+        RAG["Nomic Semantic Search (RAG)"]
     end
 
-    Ext <-->|Message Passing| OD
-    Capture -->|Upload .webm| API
+    Android -->|Upload .m4a| API
+    Ext -->|Upload .webm| API
+    Web <-->|REST| API
+
     API --> Chunk
-    Chunk -->|Whisper Transcription| Super
+    Chunk -->|Groq Whisper| Super
     Super <--> Extract
     Super <--> Assign
-    
-    Agents -->|Save Traces| Mongo
-    Agents -->|Vector Embeddings| RAG
-    UI <-->|HTTP Requests| Mongo
+
+    Agents -->|Persist| Mongo
+    Agents -->|Embed| RAG
+    Scheduler -->|Gmail SMTP| Mongo
 ```
-
-## Key Features
-
-1. **Live Browser Capture**: A custom Chrome extension that records tab audio directly from your browser, bypassing the need for complex bot integrations.
-2. **Infinite Audio Chunking**: A custom algorithm that splits large meeting files, allowing you to bypass the standard 25MB Whisper API limit and upload up to 200MB.
-3. **Multi-Agent Extraction**: Uses LangGraph to meticulously extract decisions, action items, and confidence scores.
-4. **Fuzzy Roster Matching**: The AI automatically links mentioned names ("Suren") to actual employee profiles and emails.
-5. **Relative Deadline Resolution**: Converts casual conversational deadlines ("let's do it tomorrow") into strict calendar dates.
-6. **Human-in-the-Loop (HITL)**: Ambiguous tasks with low confidence scores (< 0.7) are automatically flagged in orange on the dashboard for a human to Approve or Reject.
-7. **Semantic RAG Search**: Instantly find past meetings and decisions based on meaning and context, not just keyword matching.
 
 ---
 
-## The Extraction Flow (How it Works)
+## Key Features
 
-When a meeting concludes, Nudge doesn't just save a text file—it deeply analyzes the conversation to enforce accountability.
+1. **🎙️ Multi-Platform Audio Capture** — Android MediaRecorder (M4A) + Chrome Extension (WebM Offscreen API) → same backend pipeline
+2. **🤖 LangGraph Multi-Agent Engine** — Supervisor orchestrates Extraction + Assignment specialists with confidence scoring
+3. **📋 Action Item Extraction** — Decisions, owners, deadlines extracted and scored with `confidence: 0.0–1.0`
+4. **👤 Fuzzy Owner Assignment** — AI fuzzy-matches spoken names to a team roster with email addresses
+5. **📅 Relative Deadline Resolution** — "by next Friday" → `2026-08-28T17:00:00` automatically
+6. **🔁 Human-in-the-Loop (HITL)** — Confidence < 0.7 → flagged for Approve / Reject before reminders fire
+7. **📧 Autonomous Reminder Loop** — APScheduler escalates emails every 24h until item is marked done
+8. **🔍 RAG Semantic Search** — Nomic embeddings in MongoDB Atlas Vector Search for meaning-based queries
+9. **📊 Analytics Dashboard** — Real-time charts for pending vs. completed, escalation rates, reminder cadence
 
-```mermaid
-sequenceDiagram
-    participant Chrome as Chrome Extension
-    participant API as FastAPI Upload
-    participant Whisper as Groq Whisper
-    participant Graph as LangGraph Supervisor
-    participant UI as React Dashboard
-    participant Human as User
+---
 
-    Chrome->>API: 1. Streams raw .webm audio
-    API->>API: 2. Chunks audio (bypasses 25MB limit)
-    API->>Whisper: 3. Sends chunks concurrently
-    Whisper-->>API: 4. Returns stitched transcript
-    API->>Graph: 5. Triggers extraction pipeline
-    
-    Graph->>Graph: 6. Extracts tasks & scores confidence
-    Graph->>Graph: 7. Fuzzy-matches owners & dates
-    Graph-->>API: 8. Persists to MongoDB
-    
-    API-->>UI: 9. Live UI updates with Action Items
-    
-    opt Confidence < 0.7 (Vague Task)
-        UI->>Human: Flags item "Needs Review"
-        Human->>UI: Approves / Assigns Owner manually
-    end
-```
+## Android App — Screenshots & Features
+
+The native Android app (Kotlin + XML) mirrors the web dashboard with an OLED-dark design system matching the brand:
+
+- **Meetings Screen** — List all recorded sessions with decisions, duration, and review badges
+- **Record Screen** — One-tap recording with animated pulse button → uploads M4A → auto-navigates to detail
+- **Meeting Detail** — Summary, decisions list, action items with Approve / Reject / Mark Done
+- **Action Items** — Filter by All / Pending / Done / Needs Review, confidence progress bars
+
+---
+
+## Tech Stack
+
+| Layer | Technologies |
+|---|---|
+| **Android** | Kotlin, XML Layouts, ViewBinding, Retrofit 2, OkHttp, Navigation Component, Lifecycle/ViewModel, Coroutines, Material 3 |
+| **Frontend** | React 18, Vite, React Router v6, Recharts, Lucide React |
+| **Backend** | Python 3.11, FastAPI, LangGraph, APScheduler, Groq (Whisper + LLaMA), Nomic Embeddings |
+| **Database** | MongoDB Atlas, Atlas Vector Search |
+| **Extension** | Chrome Manifest V3, Offscreen Document API, MediaRecorder |
+| **Infra** | Render (backend), Vercel (frontend), GitHub |
 
 ---
 
 ## Getting Started
 
-To run the Nudge AI backend, frontend, and extension locally:
-
-### 1. Configure Environment
+### Backend (FastAPI)
 ```bash
-git clone <repo-url>
+git clone https://github.com/Kishan8548/Nudge
 cd Nudge
 
-# Copy the template and add your API keys (Groq, MongoDB, etc.)
-cp .env.example .env
-```
-
-### 2. Start the Backend (FastAPI + LangGraph)
-```bash
-# Create and activate virtual environment
 python -m venv .venv
 .venv\Scripts\activate        # Windows
-# source .venv/bin/activate   # macOS/Linux
-
-# Install dependencies and run
 pip install -r requirements.txt
-uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
+
+# Add your keys to .env (GROQ_API_KEY, MONGODB_URI, GMAIL_USER, etc.)
+uvicorn backend.main:app --reload --port 8000
 ```
 
-### 3. Start the Frontend (React + Vite)
+### Frontend (React)
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev   # → http://localhost:5173
 ```
-The frontend will start on `http://localhost:5173`. You will be greeted by the cinematic dashboard.
 
-### 4. Install the Chrome Extension
-1. Open Chrome and navigate to `chrome://extensions/`.
-2. Enable **Developer mode** in the top right.
-3. Click **Load unpacked** and select the `Nudge/extension/` folder.
-4. Click the extension icon and hit **Start Capture**!
+### Android App
+1. Open `Nudge/android/` in **Android Studio**
+2. Sync Gradle (all dependencies auto-resolve)
+3. Run on device or emulator (API 26+)
+
+> **Backend URL** is set in [`RetrofitClient.kt`](android/app/src/main/java/com/nudge/ai/data/api/RetrofitClient.kt) — update `BASE_URL` to point to your local or deployed backend.
+
+### Chrome Extension
+1. Go to `chrome://extensions/` → Enable Developer Mode
+2. Click **Load unpacked** → select `Nudge/extension/`
+3. Click extension icon → **Start Capture**
 
 ---
 
+## Project Structure
+
+```
+Nudge/
+├── backend/          FastAPI + LangGraph agents
+│   ├── agents/       Supervisor, extraction, assignment agents
+│   ├── routers/      meetings, action-items, upload, analytics, RAG
+│   └── db/           MongoDB models
+├── frontend/         React + Vite web dashboard
+│   └── src/pages/    Landing, Dashboard, MeetingDetail, Analytics
+├── android/          Native Kotlin Android app
+│   └── app/src/main/
+│       ├── java/com/nudge/ai/
+│       │   ├── data/   Models, Retrofit API, Repository
+│       │   └── ui/     Home, Record, Detail, ActionItems fragments
+│       └── res/        Layouts, drawables, themes, nav graph
+└── extension/        Chrome Manifest V3 extension
+    ├── offscreen.html  MediaRecorder audio capture
+    └── popup.js        Extension UI + chunked upload
+```
 
 ---
+
 <div align="center">
-  <i>Built to kill meeting amnesia, forever.</i>
+  <i>AI that turns meetings into accountability.</i>
 </div>
