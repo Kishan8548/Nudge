@@ -26,6 +26,7 @@ from backend.agents.graph import build_graph
 from backend.routers import action_items, meetings, upload
 from backend.routers.rag import router as rag_router
 from backend.routers.analytics import router as analytics_router
+from backend.routers.seed import router as seed_router
 from backend.services.scheduler import start_scheduler, stop_scheduler, trigger_reminder_now
 
 # ----- Logging -----
@@ -118,6 +119,7 @@ app.include_router(meetings.router)
 app.include_router(action_items.router)
 app.include_router(rag_router)
 app.include_router(analytics_router)
+app.include_router(seed_router)
 
 
 # --- Utility Endpoints ---
