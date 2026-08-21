@@ -24,8 +24,14 @@ class MeetingsAdapter(
 
             // Duration
             if (meeting.durationSeconds != null && meeting.durationSeconds > 0) {
-                val mins = meeting.durationSeconds / 60
-                b.tvDuration.text = "${mins} min"
+                val totalSecs = meeting.durationSeconds.toInt()
+                val mins = totalSecs / 60
+                val secs = totalSecs % 60
+                b.tvDuration.text = when {
+                    mins == 0 -> "${secs}s"
+                    secs == 0 -> "$mins min"
+                    else -> "${mins}m ${secs.toString().padStart(2, '0')}s"
+                }
                 b.tvDuration.visibility = android.view.View.VISIBLE
             } else {
                 b.tvDuration.visibility = android.view.View.GONE
