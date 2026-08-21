@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp">
+
+        <!-- Header -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/record_title"
+            android:textColor="@color/text_primary"
+            android:textSize="26sp"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="-0.02"
+            android:layout_gravity="start"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Capture meeting audio and let the AI extract action items automatically."
+            android:textColor="@color/text_muted"
+            android:textSize="14sp"
+            android:layout_gravity="start"
+            android:lineSpacingMultiplier="1.4"
+            android:layout_marginBottom="32dp" />
+
+        <!-- Your name (remembered across sessions) -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilSelfName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Your name in the meeting"
+            app:boxBackgroundColor="@color/surface"
+            app:boxStrokeColor="@color/teal_primary"
+            app:hintTextColor="@color/text_muted"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_marginBottom="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etSelfName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_muted"
+                android:inputType="textPersonName"
+                android:imeOptions="actionNext" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Meeting title input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/meeting_title_hint"
+            app:boxBackgroundColor="@color/surface"
+            app:boxStrokeColor="@color/teal_primary"
+            app:hintTextColor="@color/text_muted"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_marginBottom="40dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_muted"
+                android:inputType="text"
+                android:imeOptions="actionDone" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Pulse ring + Record button -->
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="28dp">
+
+            <!-- Pulse ring -->
+            <View
+                android:id="@+id/pulseRing"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:background="@drawable/pulse_ring"
+                android:visibility="gone" />
+
+            <!-- Record FAB -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btnRecord"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_record"
+                android:contentDescription="@string/cd_record_button"
+                app:fabCustomSize="72dp"
+                app:maxImageSize="36dp"
+                app:backgroundTint="@color/teal_primary"
+                app:tint="@color/white"
+                app:elevation="4dp"
+                app:pressedTranslationZ="8dp" />
+
+        </FrameLayout>
+
+        <!-- Status text -->
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/recording_status_ready"
+            android:textColor="@color/text_muted"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Upload progress -->
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            app:indicatorColor="@color/teal_primary"
+            app:trackColor="@color/surface_variant"
+            android:visibility="gone"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Info card -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/NudgeCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="How it works"
+                    android:textColor="@color/teal_primary"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.06"
+                    android:textAllCaps="true"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="① Tap the button to start recording"
+                    android:textColor="@color/text_secondary" android:textSize="13sp"
+                    android:layout_marginBottom="8dp" android:lineSpacingMultiplier="1.4"/>
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="② Talk through your meeting naturally"
+                    android:textColor="@color/text_secondary" android:textSize="13sp"
+                    android:layout_marginBottom="8dp" android:lineSpacingMultiplier="1.4"/>
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="③ Tap Stop — AI extracts decisions &amp; assigns owners"
+                    android:textColor="@color/text_secondary" android:textSize="13sp"
+                    android:lineSpacingMultiplier="1.4"/>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</ScrollView>
