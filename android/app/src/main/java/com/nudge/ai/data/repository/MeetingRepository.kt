@@ -31,7 +31,8 @@ class MeetingRepository(
     }
 
     suspend fun processMeeting(id: String): Result<Meeting> = safeCall {
-        api.processMeeting(id).requireBody()
+        api.processMeeting(id)
+        api.getMeeting(id).requireBody()
     }
 
     suspend fun deleteMeeting(id: String): Result<Unit> = safeCall {

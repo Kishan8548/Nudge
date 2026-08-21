@@ -48,5 +48,6 @@ class MeetingAgentState(TypedDict, total=False):
     needs_human_review: bool
     current_action: str
     next_step: str
+    extraction_done: bool   # Set by extraction_node; prevents supervisor re-routing loop
     assignment_done: bool   # Set by assignment_node; prevents supervisor re-routing loop
     self_name: str | None  # Name of the person who recorded — used to tag is_mine

@@ -96,6 +96,7 @@ def extraction_node(state: dict) -> dict:
             "decisions": [],
             "action_items": [],
             "needs_human_review": False,
+            "extraction_done": True,
             "messages": [
                 {"role": "assistant", "content": "[Extraction] No transcript provided."}
             ],
@@ -174,6 +175,7 @@ def extraction_node(state: dict) -> dict:
             "decisions": result.decisions,
             "action_items": action_items,
             "needs_human_review": needs_review,
+            "extraction_done": True,
             "messages": [{"role": "assistant", "content": summary}],
         }
 
@@ -183,6 +185,7 @@ def extraction_node(state: dict) -> dict:
             "decisions": [],
             "action_items": [],
             "needs_human_review": True,
+            "extraction_done": True,
             "messages": [
                 {
                     "role": "assistant",

@@ -115,6 +115,8 @@ def process_meeting(request: Request, meeting_id: str):
                 "decisions": [],
                 "action_items": [],
                 "needs_human_review": False,
+                "extraction_done": False,
+                "assignment_done": False,
                 "self_name": meeting.get("self_name"),  # tag is_mine on extraction
             },
             config=config,
@@ -138,6 +140,9 @@ def process_meeting(request: Request, meeting_id: str):
             {"_id": oid},
             {"$set": {"summary": summary}},
         )
+
+        # Clean existing action items for this meeting before inserting fresh extractions
+        db[ACTION_ITEMS].delete_many({"meeting_id": oid})
 
         # Insert action items as separate documents
         now = datetime.utcnow()
@@ -175,28 +180,37 @@ def process_meeting(request: Request, meeting_id: str):
         )
 
         # Notify Slack channel (non-blocking — failure doesn't affect response)
-        send_meeting_processed_slack(
-            meeting_title=meeting.get("title", "Untitled Meeting"),
-            decisions_count=len(decisions),
-            items_count=len(saved_items),
-            needs_review=needs_review,
-        )
+        try:
+            send_meeting_processed_slack(
+                meeting_title=meeting.get("title", "Untitled Meeting"),
+                decisions_count=len(decisions),
+                items_count=len(saved_items),
+                needs_review=needs_review,
+            )
+        except Exception as e:
+            logger.warning(f"Slack notification skipped: {e}")
 
         # Index meeting for RAG similarity search (non-blocking)
-        store_meeting_embedding(
-            db=db,
-            meeting_id=meeting_id,
-            title=meeting.get("title", "Untitled Meeting"),
-            transcript=meeting.get("raw_transcript", ""),
-            decisions=decisions,
-        )
+        try:
+            store_meeting_embedding(
+                db=db,
+                meeting_id=meeting_id,
+                title=meeting.get("title", "Untitled Meeting"),
+                transcript=meeting.get("raw_transcript", ""),
+                decisions=decisions,
+            )
+        except Exception as e:
+            logger.warning(f"RAG embedding indexing skipped: {e}")
 
-        return {
-            "meeting_id": meeting_id,
-            "decisions": decisions,
-            "action_items": [_serialize(ai) for ai in saved_items],
-            "needs_human_review": needs_review,
-        }
+        # Return full updated meeting document
+        updated_meeting = db[MEETINGS].find_one({"_id": oid})
+        response_payload = _serialize(updated_meeting) if updated_meeting else {}
+        response_payload["meeting_id"] = meeting_id
+        response_payload["decisions"] = decisions
+        response_payload["action_items"] = [_serialize(ai) for ai in saved_items]
+        response_payload["needs_human_review"] = needs_review
+
+        return response_payload
 
     except Exception as e:
         logger.error(f"Failed to process meeting {meeting_id}: {e}")

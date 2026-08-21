@@ -39,22 +39,21 @@ class RouteDecision(BaseModel):
 SUPERVISOR_PROMPT = """You are the supervisor agent for a meeting follow-up system. Your job is to decide which specialist agent should act next.
 
 Available specialists:
-- **extraction**: Extracts decisions and action items from a meeting transcript. Use when we have a transcript but haven't extracted items yet.
-- **assignment**: Matches action item owners to a team roster and resolves relative deadlines to actual dates. Use ONCE after extraction.
+- **extraction**: Extracts decisions and action items from a meeting transcript. Use when we have a transcript but extraction has not been performed yet (extraction_done=false).
+- **assignment**: Matches action item owners to a team roster and resolves relative deadlines to actual dates. Use ONCE after extraction if action items exist (assignment_done=false).
 - **reminder**: Checks action items against deadlines and sends reminder emails. Use when the current action is "check_and_remind".
 - **FINISH**: All work for this invocation is complete.
 
 Routing rules:
 1. If current_action is "process_meeting":
-   a. No action items extracted yet → "extraction"
-   b. Action items exist AND assignment has NOT been attempted yet → "assignment"
-   c. Assignment already attempted (assignment_done=true) → "FINISH" (even if some owners lack emails — they may simply not be in the roster)
-   d. All items fully processed → "FINISH"
+   a. Extraction NOT yet performed (extraction_done=false) → "extraction"
+   b. Extraction already performed (extraction_done=true) AND action items exist AND assignment_done=false → "assignment"
+   c. Extraction already performed and no action items, or assignment already done (assignment_done=true) → "FINISH"
 2. If current_action is "check_and_remind":
    a. First pass → "reminder"
    b. After reminder completes → "FINISH"
 
-CRITICAL: Never route to the same specialist twice in a row. If assignment was already run and owners still lack emails, those names are simply not in the roster — go to FINISH.
+CRITICAL: Never route to the same specialist twice in a row. If extraction or assignment has already been performed, do NOT run it again — go to FINISH.
 Always explain your reasoning concisely."""
 
 
@@ -63,18 +62,20 @@ Always explain your reasoning concisely."""
 def supervisor_node(state: dict) -> dict:
     """LangGraph node: supervisor that routes to the right specialist.
 
-    Reads: current_action, action_items, raw_transcript, messages
+    Reads: current_action, action_items, raw_transcript, extraction_done, assignment_done, messages
     Writes: next_step, messages
     """
     current_action = state.get("current_action", "process_meeting")
     action_items = state.get("action_items", [])
     transcript = state.get("raw_transcript", "")
+    extraction_done = state.get("extraction_done", False)
     assignment_done = state.get("assignment_done", False)
 
     # Build context summary for the LLM
     context_lines = [
         f"Current action: {current_action}",
         f"Has transcript: {bool(transcript)} ({len(transcript)} chars)",
+        f"extraction_done: {extraction_done}",
         f"Action items count: {len(action_items)}",
         f"assignment_done: {assignment_done}",
     ]
@@ -136,7 +137,9 @@ def supervisor_node(state: dict) -> dict:
     except Exception as e:
         # Fallback to deterministic routing if LLM fails
         logger.error(f"Supervisor LLM failed: {e} — using deterministic fallback")
-        fallback = _deterministic_route(current_action, action_items, transcript, assignment_done)
+        fallback = _deterministic_route(
+            current_action, action_items, transcript, assignment_done, extraction_done
+        )
 
         return {
             "next_step": fallback,
@@ -165,20 +168,19 @@ def _deterministic_route(
     action_items: list,
     transcript: str,
     assignment_done: bool = False,
+    extraction_done: bool = False,
 ) -> str:
     """Fallback deterministic routing when the LLM call fails."""
     if current_action == "check_and_remind":
         return "reminder"
 
-    if not action_items and transcript:
+    if not extraction_done and transcript:
         return "extraction"
 
-    if action_items:
-        # Only route to assignment if it hasn't run yet
-        if not assignment_done:
-            has_unassigned = any(not item.get("owner_email") for item in action_items)
-            if has_unassigned:
-                return "assignment"
+    if extraction_done and action_items and not assignment_done:
+        has_unassigned = any(not item.get("owner_email") for item in action_items)
+        if has_unassigned:
+            return "assignment"
 
     return "FINISH"
 
