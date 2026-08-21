@@ -32,10 +32,16 @@ def get_client() -> MongoClient:
         _client = MongoClient(
             settings.MONGODB_URI.get_secret_value(),
             serverSelectionTimeoutMS=5000,
+            connectTimeoutMS=5000,
+            socketTimeoutMS=20000,
+            maxPoolSize=25,
+            minPoolSize=2,
+            maxIdleTimeMS=30000,
+            waitQueueTimeoutMS=5000,
         )
         # Verify connection on first use
         _client.admin.command("ping")
-        logger.info("Connected to MongoDB Atlas")
+        logger.info("Connected to MongoDB Atlas with connection pooling bounds")
     return _client
 
 

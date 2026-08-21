@@ -104,6 +104,11 @@ app = FastAPI(
     # for long-running transcription requests (2-hour audio ~= 3-5 min to transcribe).
 )
 
+import time
+from collections import defaultdict
+from threading import Lock
+from starlette.responses import JSONResponse
+
 # CORS middleware for React frontend and Chrome Extension
 app.add_middleware(
     CORSMiddleware,
@@ -112,6 +117,82 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ----- Rate Limiting Defense -----
+_rate_limit_lock = Lock()
+_request_counts = defaultdict(list)
+_last_cleanup = time.time()
+
+GENERAL_LIMIT = 80  # Max 80 requests/min per IP for reads/health
+HEAVY_LIMIT = 15    # Max 15 requests/min per IP for AI/audio uploads/RAG/seeding
+
+HEAVY_PREFIXES = (
+    "/api/upload",
+    "/api/rag",
+    "/api/seed",
+    "/api/scheduler/trigger",
+)
+
+
+def _is_heavy_endpoint(path: str, method: str) -> bool:
+    if method == "POST" and (path.endswith("/process") or path.endswith("/remind")):
+        return True
+    return any(path.startswith(prefix) for prefix in HEAVY_PREFIXES)
+
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    # Allow CORS preflight requests without rate checks
+    if request.method == "OPTIONS":
+        return await call_next(request)
+
+    # Resolve client IP (respecting reverse proxies like Render/Cloudflare)
+    forwarded = request.headers.get("x-forwarded-for")
+    client_ip = (
+        forwarded.split(",")[0].strip()
+        if forwarded
+        else (request.client.host if request.client else "unknown")
+    )
+
+    now = time.time()
+    path = request.url.path
+    method = request.method
+    is_heavy = _is_heavy_endpoint(path, method)
+    limit = HEAVY_LIMIT if is_heavy else GENERAL_LIMIT
+    key = f"{client_ip}:{'heavy' if is_heavy else 'gen'}"
+
+    with _rate_limit_lock:
+        global _last_cleanup
+        # Periodic cleanup of expired timestamps every 60s
+        if now - _last_cleanup > 60:
+            cutoff = now - 60
+            for k in list(_request_counts.keys()):
+                _request_counts[k] = [t for t in _request_counts[k] if t > cutoff]
+                if not _request_counts[k]:
+                    del _request_counts[k]
+            _last_cleanup = now
+
+        # Prune current key's timestamps
+        cutoff = now - 60
+        timestamps = [t for t in _request_counts[key] if t > cutoff]
+        _request_counts[key] = timestamps
+
+        if len(timestamps) >= limit:
+            logger.warning(
+                f"Rate limit exceeded for {client_ip} on {method} {path} ({len(timestamps)}/{limit})"
+            )
+            return JSONResponse(
+                status_code=429,
+                content={
+                    "detail": "Rate limit exceeded. Please wait a moment before sending more requests.",
+                    "retry_after_seconds": 60,
+                },
+                headers={"Retry-After": "60"},
+            )
+
+        _request_counts[key].append(now)
+
+    return await call_next(request)
 
 # --- Routers ---
 app.include_router(upload.router)
