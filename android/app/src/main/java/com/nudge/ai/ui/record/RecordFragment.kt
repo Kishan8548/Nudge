@@ -3,7 +3,11 @@ package com.nudge.ai.ui.record
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
 import android.media.MediaRecorder
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +25,7 @@ import java.io.File
 
 private const val PREFS_NAME = "nudge_prefs"
 private const val KEY_SELF_NAME = "self_name"
+private const val MIN_RECORDING_BYTES = 4096L // at least 4 KB
 
 class RecordFragment : Fragment() {
 
@@ -30,6 +35,25 @@ class RecordFragment : Fragment() {
 
     private var mediaRecorder: MediaRecorder? = null
     private var outputFile: File? = null
+    private var recordStartTime: Long = 0L
+    private var audioManager: AudioManager? = null
+    private var audioFocusRequest: AudioFocusRequest? = null
+
+    private val audioFocusListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
+        if (focusChange == AudioManager.AUDIOFOCUS_LOSS ||
+            focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
+        ) {
+            // Stop recording cleanly on incoming call or audio focus loss
+            if (viewModel.state.value == RecordState.RECORDING) {
+                stopRecording()
+                Snackbar.make(
+                    binding.root,
+                    "Recording stopped due to incoming audio/call",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
 
     private val requestPermission = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -47,6 +71,7 @@ class RecordFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        audioManager = requireContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
         // Restore saved self name across sessions
         val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -77,9 +102,43 @@ class RecordFragment : Fragment() {
         }
     }
 
+    private fun requestAudioFocus(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val playbackAttributes = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                .build()
+            val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)
+                .setAudioAttributes(playbackAttributes)
+                .setOnAudioFocusChangeListener(audioFocusListener)
+                .build()
+            audioFocusRequest = focusRequest
+            audioManager?.requestAudioFocus(focusRequest) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        } else {
+            @Suppress("DEPRECATION")
+            audioManager?.requestAudioFocus(
+                audioFocusListener,
+                AudioManager.STREAM_VOICE_CALL,
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
+            ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        }
+    }
+
+    private fun abandonAudioFocus() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            audioFocusRequest?.let { audioManager?.abandonAudioFocusRequest(it) }
+        } else {
+            @Suppress("DEPRECATION")
+            audioManager?.abandonAudioFocus(audioFocusListener)
+        }
+    }
+
     private fun startRecording() {
+        requestAudioFocus()
+
         val file = File(requireContext().cacheDir, "nudge_${System.currentTimeMillis()}.m4a")
         outputFile = file
+        recordStartTime = System.currentTimeMillis()
 
         @Suppress("DEPRECATION")
         mediaRecorder = MediaRecorder().apply {
@@ -97,12 +156,28 @@ class RecordFragment : Fragment() {
     }
 
     private fun stopRecording() {
+        abandonAudioFocus()
+
         try {
             mediaRecorder?.apply { stop(); release() }
         } catch (e: Exception) { /* ignore stop errors */ }
         mediaRecorder = null
 
         val file = outputFile ?: return
+        val durationMs = System.currentTimeMillis() - recordStartTime
+
+        // Check if recording was too short or empty (Edge Case 2.9)
+        if (durationMs < 1500 || file.length() < MIN_RECORDING_BYTES) {
+            file.delete()
+            viewModel.reset()
+            Snackbar.make(
+                binding.root,
+                "Recording was too short. Please speak and record for at least a few seconds.",
+                Snackbar.LENGTH_LONG
+            ).show()
+            return
+        }
+
         val title = binding.etTitle.text.toString().trim()
         val selfName = binding.etSelfName.text.toString().trim().takeIf { it.isNotBlank() }
 
@@ -129,6 +204,7 @@ class RecordFragment : Fragment() {
                     binding.etTitle.isEnabled = true
                     binding.progressBar.visibility = View.GONE
                     binding.pulseRing.visibility = View.GONE
+                    binding.btnRecord.isEnabled = true
                 }
                 RecordState.RECORDING -> {
                     binding.btnRecord.setImageResource(R.drawable.ic_stop)
@@ -140,6 +216,7 @@ class RecordFragment : Fragment() {
                     binding.etTitle.isEnabled = false
                     binding.progressBar.visibility = View.GONE
                     binding.pulseRing.visibility = View.VISIBLE
+                    binding.btnRecord.isEnabled = true
                 }
                 RecordState.UPLOADING -> {
                     binding.btnRecord.clearAnimation()

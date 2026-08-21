@@ -25,6 +25,7 @@ class MeetingDetailViewModel : ViewModel() {
     val actionTaken: LiveData<String?> = _actionTaken
 
     fun loadMeeting(id: String) {
+        if (id.isBlank()) return
         viewModelScope.launch {
             _isLoading.value = true
             repository.getMeeting(id)
@@ -35,6 +36,7 @@ class MeetingDetailViewModel : ViewModel() {
     }
 
     fun processMeeting(id: String) {
+        if (id.isBlank() || _isLoading.value == true) return
         viewModelScope.launch {
             _isLoading.value = true
             repository.processMeeting(id)

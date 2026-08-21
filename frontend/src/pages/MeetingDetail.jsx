@@ -57,6 +57,7 @@ export default function MeetingDetail() {
   }
 
   async function handleProcess() {
+    if (processing) return;
     setProcessing(true);
     try {
       await toast.promise(
