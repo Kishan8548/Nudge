@@ -207,7 +207,7 @@ def process_meeting(request: Request, meeting_id: str):
 
 @router.delete("/{meeting_id}")
 def delete_meeting(request: Request, meeting_id: str):
-    """Delete a meeting and all its associated action items."""
+    """Delete a meeting and all its associated action items and embeddings."""
     db = request.app.state.db
 
     try:
@@ -215,16 +215,51 @@ def delete_meeting(request: Request, meeting_id: str):
     except InvalidId:
         raise HTTPException(status_code=400, detail="Invalid meeting ID format")
 
-    # Delete the meeting
-    result = db[MEETINGS].delete_one({"_id": oid})
-    if result.deleted_count == 0:
+    # Find meeting first to get audio file path
+    meeting = db[MEETINGS].find_one({"_id": oid})
+    if not meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
 
-    # Delete associated action items
-    db[ACTION_ITEMS].delete_many({"meeting_id": oid})
+    # Delete associated audio file if present on disk
+    audio_path = meeting.get("audio_file")
+    if audio_path:
+        try:
+            from pathlib import Path
+            Path(audio_path).unlink(missing_ok=True)
+        except Exception as e:
+            logger.warning(f"Could not delete audio file {audio_path}: {e}")
 
-    logger.info(f"Deleted meeting {meeting_id} and associated action items.")
-    return {"status": "success", "detail": "Meeting deleted"}
+    # Delete the meeting
+    db[MEETINGS].delete_one({"_id": oid})
+
+    # Cascade delete all associated action items (matches ObjectId, string, or str(oid))
+    deleted_ai = db[ACTION_ITEMS].delete_many({
+        "$or": [
+            {"meeting_id": oid},
+            {"meeting_id": meeting_id},
+            {"meeting_id": str(oid)},
+        ]
+    })
+
+    # Cascade delete RAG vector embeddings
+    try:
+        db["meeting_embeddings"].delete_many({
+            "$or": [
+                {"meeting_id": meeting_id},
+                {"meeting_id": oid},
+            ]
+        })
+    except Exception:
+        pass
+
+    logger.info(
+        f"Deleted meeting {meeting_id}, {deleted_ai.deleted_count} action items, and associated embeddings."
+    )
+    return {
+        "status": "success",
+        "detail": f"Meeting and {deleted_ai.deleted_count} action items deleted",
+        "deleted_action_items": deleted_ai.deleted_count,
+    }
 
 # ----- Helpers -----
 
