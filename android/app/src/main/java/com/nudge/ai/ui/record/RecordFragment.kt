@@ -40,18 +40,24 @@ class RecordFragment : Fragment() {
     private var audioManager: AudioManager? = null
     private var audioFocusRequest: AudioFocusRequest? = null
 
+    private var timerHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val timerRunnable = object : Runnable {
+        override fun run() {
+            if (viewModel.state.value == RecordState.RECORDING && recordStartTime > 0) {
+                val elapsedSec = (System.currentTimeMillis() - recordStartTime) / 1000
+                val m = elapsedSec / 60
+                val s = elapsedSec % 60
+                binding.tvStatus.text = String.format(java.util.Locale.US, "Recording... %02d:%02d", m, s)
+                timerHandler.postDelayed(this, 1000)
+            }
+        }
+    }
+
     private val audioFocusListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
-        if (focusChange == AudioManager.AUDIOFOCUS_LOSS ||
-            focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
-        ) {
-            // Stop recording cleanly on incoming call or audio focus loss
+        if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+            // Only stop on permanent audio loss (e.g. phone call answered)
             if (viewModel.state.value == RecordState.RECORDING) {
                 stopRecording()
-                Snackbar.make(
-                    binding.root,
-                    "Recording stopped due to incoming audio/call",
-                    Snackbar.LENGTH_LONG
-                ).show()
             }
         }
     }
@@ -104,34 +110,40 @@ class RecordFragment : Fragment() {
     }
 
     private fun requestAudioFocus(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val playbackAttributes = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                .build()
-            val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)
-                .setAudioAttributes(playbackAttributes)
-                .setOnAudioFocusChangeListener(audioFocusListener)
-                .build()
-            audioFocusRequest = focusRequest
-            audioManager?.requestAudioFocus(focusRequest) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-        } else {
-            @Suppress("DEPRECATION")
-            audioManager?.requestAudioFocus(
-                audioFocusListener,
-                AudioManager.STREAM_VOICE_CALL,
-                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
-            ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val playbackAttributes = AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build()
+                val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                    .setAudioAttributes(playbackAttributes)
+                    .setOnAudioFocusChangeListener(audioFocusListener)
+                    .build()
+                audioFocusRequest = focusRequest
+                audioManager?.requestAudioFocus(focusRequest) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+            } else {
+                @Suppress("DEPRECATION")
+                audioManager?.requestAudioFocus(
+                    audioFocusListener,
+                    AudioManager.STREAM_MUSIC,
+                    AudioManager.AUDIOFOCUS_GAIN
+                ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+            }
+        } catch (e: Exception) {
+            true // proceed even if focus request fails
         }
     }
 
     private fun abandonAudioFocus() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            audioFocusRequest?.let { audioManager?.abandonAudioFocusRequest(it) }
-        } else {
-            @Suppress("DEPRECATION")
-            audioManager?.abandonAudioFocus(audioFocusListener)
-        }
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                audioFocusRequest?.let { audioManager?.abandonAudioFocusRequest(it) }
+            } else {
+                @Suppress("DEPRECATION")
+                audioManager?.abandonAudioFocus(audioFocusListener)
+            }
+        } catch (e: Exception) { /* ignore */ }
     }
 
     private fun startRecording() {
@@ -141,22 +153,34 @@ class RecordFragment : Fragment() {
         outputFile = file
         recordStartTime = System.currentTimeMillis()
 
-        @Suppress("DEPRECATION")
-        mediaRecorder = MediaRecorder().apply {
-            setAudioSource(MediaRecorder.AudioSource.MIC)
-            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            setAudioEncodingBitRate(128_000)
-            setAudioSamplingRate(44_100)
-            setOutputFile(file.absolutePath)
-            prepare()
-            start()
+        try {
+            val recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                MediaRecorder(requireContext())
+            } else {
+                @Suppress("DEPRECATION")
+                MediaRecorder()
+            }
+            mediaRecorder = recorder.apply {
+                setAudioSource(MediaRecorder.AudioSource.MIC)
+                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                setAudioEncodingBitRate(128_000)
+                setAudioSamplingRate(44_100)
+                setOutputFile(file.absolutePath)
+                prepare()
+                start()
+            }
+            viewModel.onRecordingStarted()
+            timerHandler.post(timerRunnable)
+        } catch (e: Exception) {
+            android.util.Log.e("RecordFragment", "Failed to start recording: ${e.message}", e)
+            Snackbar.make(binding.root, "Failed to start microphone: ${e.message}", Snackbar.LENGTH_LONG).show()
+            viewModel.reset()
         }
-
-        viewModel.onRecordingStarted()
     }
 
     private fun stopRecording() {
+        timerHandler.removeCallbacks(timerRunnable)
         abandonAudioFocus()
 
         try {
