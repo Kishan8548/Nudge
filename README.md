@@ -20,11 +20,15 @@
   <img src="https://img.shields.io/badge/STT-Groq%20Whisper%20Large%20v3-00A896?style=flat-square" />
   <img src="https://img.shields.io/badge/Database-MongoDB%20Atlas-47A248?style=flat-square&logo=mongodb" />
   <img src="https://img.shields.io/badge/Frontend-React%20%7C%20Vite-61DAFB?style=flat-square&logo=react" />
+  <br/><br/>
+  <a href="https://nudge-three-coral.vercel.app/">
+    <img src="screenshots/web_preview.png" width="900" alt="Nudge AI Web Command Center" />
+  </a>
 </div>
 
 ---
 
-## App Screenshots
+## Mobile Application
 
 | Meetings List | Audio Recording | Action Items | Empty State |
 |:---:|:---:|:---:|:---:|
