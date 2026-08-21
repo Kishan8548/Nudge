@@ -7,39 +7,25 @@ export default function NudgeLogo({ size = 32, className = '' }) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={`nudge-logo ${className}`}
-      style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }}
+      style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0, borderRadius: '25%' }}
     >
-      <defs>
-        <linearGradient id="nl-grad" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#2DD4BF" />
-          <stop offset="50%" stopColor="#0D9488" />
-          <stop offset="100%" stopColor="#6366F1" />
-        </linearGradient>
-        <linearGradient id="nl-glow" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#14B8A6" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="#6366F1" stopOpacity="0" />
-        </linearGradient>
-      </defs>
+      {/* Background teal rounded squircle */}
+      <rect width="64" height="64" rx="16" fill="#00A896" />
 
-      <rect width="64" height="64" rx="16" fill="#0D111C" />
-      <rect x="1" y="1" width="62" height="62" rx="15" stroke="url(#nl-grad)" strokeWidth="1.5" strokeOpacity="0.4" />
-      <rect width="64" height="64" rx="16" fill="url(#nl-glow)" />
+      {/* Top Antenna */}
+      <path d="M26 15h9a2 2 0 0 1 2 2v4h-5v-3h-6a1.5 1.5 0 0 1-1.5-1.5v-.5a1.5 1.5 0 0 1 1.5-1.5z" fill="#FFFFFF" />
 
-      {/* Left Pillar */}
+      {/* Head Frame with side ear tabs */}
       <path
-        d="M17 46V18C17 16.3431 18.3431 15 20 15H21C22.6569 15 24 16.3431 24 18V46C24 47.6569 22.6569 49 21 49H20C18.3431 49 17 47.6569 17 46Z"
-        fill="url(#nl-grad)"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M22 21C17.5817 21 14 24.5817 14 29V32H11C9.34315 32 8 33.3431 8 35V37C8 38.6569 9.34315 40 11 40H14V43C14 47.4183 17.5817 51 22 51H42C46.4183 51 50 47.4183 50 43V40H53C54.6569 40 56 38.6569 56 37V35C56 33.3431 54.6569 32 53 32H50V29C50 24.5817 46.4183 21 42 21H22ZM20 27C18.8954 27 18 27.8954 18 29V43C18 44.1046 18.8954 45 20 45H44C45.1046 45 46 44.1046 46 43V29C46 27.8954 45.1046 27 44 27H20Z"
+        fill="#FFFFFF"
       />
 
-      {/* Dynamic Diagonal Streak */}
-      <path
-        d="M22 17L42 47C42.8 48.2 44.5 48.4 45.6 47.4C46.2 46.8 46.5 46 46.5 45.1V18C46.5 16.3431 45.1569 15 43.5 15C41.8431 15 40.5 16.3431 40.5 18V36.5L25.2 15.6C24.1 14.2 22.1 13.9 20.7 15C20.2 15.4 19.8 16 19.6 16.7L22 17Z"
-        fill="url(#nl-grad)"
-      />
-
-      {/* Neural Core Nodes */}
-      <circle cx="43.5" cy="18" r="3" fill="#5EEAD4" />
-      <circle cx="20.5" cy="46" r="3" fill="#818CF8" />
+      {/* Vertical capsule eyes */}
+      <rect x="25" y="32" width="4.5" height="8" rx="2.25" fill="#FFFFFF" />
+      <rect x="34.5" y="32" width="4.5" height="8" rx="2.25" fill="#FFFFFF" />
     </svg>
   );
 }

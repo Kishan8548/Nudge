@@ -5,6 +5,7 @@ import {
   GitBranch, Zap, Shield, Search, Users, Clock,
   ExternalLink, BarChart3, CheckCircle2, ArrowRight,
   FileAudio, ListChecks, AlertTriangle, Activity
+} from 'lucide-react';
 import NudgeLogo from '../components/NudgeLogo';
 
 /* ─── Intersection Observer Hook ─── */

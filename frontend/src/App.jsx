@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import { Toaster } from 'react-hot-toast';
+import { api } from './api/client';
 import RootLayout from './layouts/RootLayout';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
@@ -30,6 +32,19 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
+  // Keep Render backend awake while app is open (ping every 5 minutes)
+  useEffect(() => {
+    // Immediate warmup ping
+    api.health().catch(() => {});
+
+    // Periodic 5-minute ping
+    const interval = setInterval(() => {
+      api.health().catch(() => {});
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <>
       <RouterProvider router={router} />
