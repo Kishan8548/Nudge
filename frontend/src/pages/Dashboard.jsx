@@ -110,7 +110,7 @@ export default function Dashboard() {
           title="No meetings yet"
           description="Upload your first meeting recording to get started with AI-powered action item extraction."
           action={
-            <button className="btn btn-primary" onClick={() => navigate('/upload')}>
+            <button className="btn btn-primary" onClick={() => navigate('/dashboard/upload')}>
               <Upload size={16} /> Upload Meeting
             </button>
           }
@@ -121,7 +121,7 @@ export default function Dashboard() {
             <div
               key={meeting.id}
               className="glass-card meeting-card"
-              onClick={() => navigate(`/meetings/${meeting.id}`)}
+              onClick={() => navigate(`/dashboard/meetings/${meeting.id}`)}
             >
               <div className="meeting-card-header">
                 <FileAudio size={18} className="meeting-card-icon" />

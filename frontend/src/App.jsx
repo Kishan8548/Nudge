@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import { Toaster } from 'react-hot-toast';
 import RootLayout from './layouts/RootLayout';
+import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
 import MeetingDetail from './pages/MeetingDetail';
@@ -9,8 +10,12 @@ import Analytics from './pages/Analytics';
 import NotFound from './pages/NotFound';
 
 const router = createBrowserRouter([
+  // Landing page — no sidebar
+  { path: '/', element: <Landing /> },
+
+  // App — with sidebar layout
   {
-    path: '/',
+    path: '/dashboard',
     element: <RootLayout />,
     children: [
       { index: true, element: <Dashboard /> },
@@ -18,9 +23,10 @@ const router = createBrowserRouter([
       { path: 'meetings/:id', element: <MeetingDetail /> },
       { path: 'action-items', element: <ActionItems /> },
       { path: 'analytics', element: <Analytics /> },
-      { path: '*', element: <NotFound /> },
     ],
   },
+
+  { path: '*', element: <NotFound /> },
 ]);
 
 export default function App() {

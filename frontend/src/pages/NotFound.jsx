@@ -12,7 +12,7 @@ export default function NotFound() {
         </div>
         <h1 className="notfound-title">404</h1>
         <p className="notfound-desc">The page you're looking for doesn't exist.</p>
-        <button className="btn btn-primary" onClick={() => navigate('/')}>
+        <button className="btn btn-primary" onClick={() => navigate('/dashboard')}>
           <Home size={16} /> Back to Dashboard
         </button>
       </div>

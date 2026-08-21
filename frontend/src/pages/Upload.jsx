@@ -18,10 +18,11 @@ const ACCEPTED_TYPES = {
 };
 
 export default function UploadPage() {
-  const [file, setFile] = useState(null);
-  const [title, setTitle] = useState('');
+  const [file,      setFile]      = useState(null);
+  const [title,     setTitle]     = useState('');
+  const [selfName,  setSelfName]  = useState(() => localStorage.getItem('nudge_self_name') || '');
   const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [progress,  setProgress]  = useState(0);
   const navigate = useNavigate();
 
   const onDrop = useCallback((accepted, rejected) => {
@@ -53,6 +54,9 @@ export default function UploadPage() {
     setUploading(true);
     setProgress(10);
 
+    // Persist self name across sessions
+    if (selfName.trim()) localStorage.setItem('nudge_self_name', selfName.trim());
+
     // Simulate progress since fetch doesn't support upload progress natively
     const progressInterval = setInterval(() => {
       setProgress((prev) => Math.min(prev + 8, 85));
@@ -60,7 +64,7 @@ export default function UploadPage() {
 
     try {
       const result = await toast.promise(
-        api.uploadMeeting(file, title),
+        api.uploadMeeting(file, title, selfName.trim() || undefined),
         {
           loading: '🎙️ Uploading & transcribing...',
           success: '✅ Transcription complete!',
@@ -133,6 +137,23 @@ export default function UploadPage() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Your name — for is_mine tagging */}
+        <div className="upload-field">
+          <label htmlFor="self-name">
+            Your name in the meeting
+            <span className="field-hint"> — used to identify your tasks</span>
+          </label>
+          <input
+            id="self-name"
+            type="text"
+            className="input-field"
+            placeholder="e.g., Suren"
+            value={selfName}
+            onChange={(e) => setSelfName(e.target.value)}
+            disabled={uploading}
+          />
         </div>
 
         {/* Title input */}

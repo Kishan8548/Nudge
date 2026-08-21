@@ -162,7 +162,7 @@ export default function MeetingDetail() {
     <div className="animate-fade-in">
       {/* Header */}
       <div className="detail-header">
-        <button className="btn btn-ghost" onClick={() => navigate('/')}>
+        <button className="btn btn-ghost" onClick={() => navigate('/dashboard')}>
           <ArrowLeft size={16} /> Back
         </button>
       </div>

@@ -6,10 +6,10 @@ import {
 } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/upload', icon: Upload, label: 'Upload Meeting' },
-  { to: '/action-items', icon: ListChecks, label: 'Action Items' },
-  { to: '/analytics', icon: BarChart3, label: 'Analytics' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/dashboard/upload', icon: Upload, label: 'Upload Meeting' },
+  { to: '/dashboard/action-items', icon: ListChecks, label: 'Action Items' },
+  { to: '/dashboard/analytics', icon: BarChart3, label: 'Analytics' },
 ];
 
 export default function RootLayout() {
@@ -41,7 +41,7 @@ export default function RootLayout() {
             <NavLink
               key={to}
               to={to}
-              end={to === '/'}
+              end={to === '/dashboard'}
               className={({ isActive }) =>
                 `sidebar-link ${isActive ? 'sidebar-link-active' : ''}`
               }

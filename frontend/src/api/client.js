@@ -60,10 +60,11 @@ export const api = {
   health: () => get('/api/health'),
 
   // Upload
-  uploadMeeting: (file, title) => {
+  uploadMeeting: (file, title, selfName) => {
     const formData = new FormData();
     formData.append('file', file);
     if (title) formData.append('title', title);
+    if (selfName) formData.append('self_name', selfName);
     return post('/api/upload', formData);
   },
 
@@ -84,6 +85,8 @@ export const api = {
     if (params.meeting_id) query.set('meeting_id', params.meeting_id);
     if (params.skip) query.set('skip', params.skip);
     if (params.limit) query.set('limit', params.limit);
+    // mine defaults to true (show MY tasks); pass mine=false for all
+    if (params.mine === false) query.set('mine', 'false');
     return get(`/api/action-items?${query.toString()}`);
   },
 
