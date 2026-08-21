@@ -106,7 +106,8 @@ def process_meeting(request: Request, meeting_id: str):
 
     # --- Invoke the LangGraph agent ---
     try:
-        config = {"configurable": {"thread_id": meeting_id}}
+        fresh_thread_id = f"{meeting_id}_{int(datetime.utcnow().timestamp())}"
+        config = {"configurable": {"thread_id": fresh_thread_id}}
         result = graph.invoke(
             {
                 "current_action": "process_meeting",
