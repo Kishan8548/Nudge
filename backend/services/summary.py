@@ -39,7 +39,7 @@ def generate_meeting_summary(transcript: str) -> str:
         from backend.utils.retry import call_with_retry
 
         llm = ChatGroq(
-            model="llama-3.3-70b-versatile",
+            model=settings.GROQ_MODEL,
             api_key=settings.GROQ_API_KEY.get_secret_value(),
             temperature=0.3,
         )

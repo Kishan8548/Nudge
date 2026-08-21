@@ -23,6 +23,7 @@ class Settings(BaseSettings):
 
     # --- Groq API ---
     GROQ_API_KEY: SecretStr
+    GROQ_MODEL: str = "openai/gpt-oss-120b"
 
     # --- MongoDB ---
     MONGODB_URI: SecretStr

@@ -105,7 +105,7 @@ def supervisor_node(state: dict) -> dict:
 
     # --- LLM-based routing ---
     llm = ChatGroq(
-        model="llama-3.3-70b-versatile",
+        model=settings.GROQ_MODEL,
         api_key=settings.GROQ_API_KEY.get_secret_value(),
         temperature=0,
     )

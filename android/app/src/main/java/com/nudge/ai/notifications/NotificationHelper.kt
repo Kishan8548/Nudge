@@ -14,11 +14,22 @@ object NotificationHelper {
 
     const val CHANNEL_DEADLINES = "nudge_deadlines"
     const val CHANNEL_REMINDERS = "nudge_reminders"
+    const val CHANNEL_RECORDING = "nudge_recording"
 
     /** Call once on app startup to register notification channels (Android 8+). */
     fun createChannels(context: Context) {
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE)
                 as NotificationManager
+
+        NotificationChannel(
+            CHANNEL_RECORDING,
+            "Meeting Recording",
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            description = "Status notification while recording meetings"
+            setShowBadge(false)
+            manager.createNotificationChannel(this)
+        }
 
         NotificationChannel(
             CHANNEL_DEADLINES,

@@ -8,6 +8,8 @@
 
     <!-- Microphone for meeting recording -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
 
     <!-- Push notifications (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -47,6 +49,12 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
+        <!-- Foreground Service for Background Meeting Recording -->
+        <service
+            android:name=".services.AudioRecordingService"
+            android:foregroundServiceType="microphone"
+            android:exported="false" />
 
         <!-- WorkManager provider -->
         <provider

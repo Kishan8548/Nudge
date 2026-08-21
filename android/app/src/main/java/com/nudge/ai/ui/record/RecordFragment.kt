@@ -2,13 +2,12 @@ package com.nudge.ai.ui.record
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.AudioAttributes
-import android.media.AudioFocusRequest
-import android.media.AudioManager
-import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,16 +16,19 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.nudge.ai.R
 import com.nudge.ai.databinding.FragmentRecordBinding
+import com.nudge.ai.services.AudioRecordingService
+import com.nudge.ai.services.AudioRecordingService.Companion.ServiceState
 import com.nudge.ai.utils.safeNavigate
-import java.io.File
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 private const val PREFS_NAME = "nudge_prefs"
-private const val KEY_SELF_NAME = "self_name"
-private const val MIN_RECORDING_BYTES = 4096L // at least 4 KB
+private const val KEY_SELF_NAME = "user_self_name"
 
 class RecordFragment : Fragment() {
 
@@ -34,13 +36,8 @@ class RecordFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: RecordViewModel by viewModels()
 
-    private var mediaRecorder: MediaRecorder? = null
-    private var outputFile: File? = null
     private var recordStartTime: Long = 0L
-    private var audioManager: AudioManager? = null
-    private var audioFocusRequest: AudioFocusRequest? = null
-
-    private var timerHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val timerHandler = Handler(Looper.getMainLooper())
     private val timerRunnable = object : Runnable {
         override fun run() {
             if (viewModel.state.value == RecordState.RECORDING && recordStartTime > 0) {
@@ -53,20 +50,15 @@ class RecordFragment : Fragment() {
         }
     }
 
-    private val audioFocusListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
-        if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-            // Only stop on permanent audio loss (e.g. phone call answered)
-            if (viewModel.state.value == RecordState.RECORDING) {
-                stopRecording()
-            }
+    private val requestPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val micGranted = permissions[Manifest.permission.RECORD_AUDIO] == true
+        if (micGranted) {
+            startRecordingService()
+        } else {
+            Snackbar.make(binding.root, R.string.permission_denied, Snackbar.LENGTH_LONG).show()
         }
-    }
-
-    private val requestPermission = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) startRecording()
-        else Snackbar.make(binding.root, R.string.permission_denied, Snackbar.LENGTH_LONG).show()
     }
 
     override fun onCreateView(
@@ -78,7 +70,6 @@ class RecordFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        audioManager = requireContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
         // Restore saved self name across sessions
         val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -89,130 +80,94 @@ class RecordFragment : Fragment() {
 
         binding.btnRecord.setOnClickListener {
             when (viewModel.state.value) {
-                RecordState.IDLE  -> checkPermissionAndRecord()
-                RecordState.RECORDING -> stopRecording()
+                RecordState.IDLE -> checkPermissionsAndStart()
+                RecordState.RECORDING -> stopRecordingService()
                 else -> { /* no-op while uploading */ }
             }
         }
 
         observeViewModel()
+        observeRecordingService()
     }
 
-    private fun checkPermissionAndRecord() {
-        if (ContextCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.RECORD_AUDIO
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            startRecording()
+    private fun checkPermissionsAndStart() {
+        val permissions = mutableListOf(Manifest.permission.RECORD_AUDIO)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        val allGranted = permissions.all {
+            ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED
+        }
+
+        if (allGranted) {
+            startRecordingService()
         } else {
-            requestPermission.launch(Manifest.permission.RECORD_AUDIO)
+            requestPermissionsLauncher.launch(permissions.toTypedArray())
         }
     }
 
-    private fun requestAudioFocus(): Boolean {
-        return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val playbackAttributes = AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                    .build()
-                val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                    .setAudioAttributes(playbackAttributes)
-                    .setOnAudioFocusChangeListener(audioFocusListener)
-                    .build()
-                audioFocusRequest = focusRequest
-                audioManager?.requestAudioFocus(focusRequest) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-            } else {
-                @Suppress("DEPRECATION")
-                audioManager?.requestAudioFocus(
-                    audioFocusListener,
-                    AudioManager.STREAM_MUSIC,
-                    AudioManager.AUDIOFOCUS_GAIN
-                ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-            }
-        } catch (e: Exception) {
-            true // proceed even if focus request fails
-        }
-    }
-
-    private fun abandonAudioFocus() {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                audioFocusRequest?.let { audioManager?.abandonAudioFocusRequest(it) }
-            } else {
-                @Suppress("DEPRECATION")
-                audioManager?.abandonAudioFocus(audioFocusListener)
-            }
-        } catch (e: Exception) { /* ignore */ }
-    }
-
-    private fun startRecording() {
-        requestAudioFocus()
-
-        val file = File(requireContext().cacheDir, "nudge_${System.currentTimeMillis()}.m4a")
-        outputFile = file
-        recordStartTime = System.currentTimeMillis()
-
-        try {
-            val recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                MediaRecorder(requireContext())
-            } else {
-                @Suppress("DEPRECATION")
-                MediaRecorder()
-            }
-            mediaRecorder = recorder.apply {
-                setAudioSource(MediaRecorder.AudioSource.MIC)
-                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                setAudioEncodingBitRate(128_000)
-                setAudioSamplingRate(44_100)
-                setOutputFile(file.absolutePath)
-                prepare()
-                start()
-            }
-            viewModel.onRecordingStarted()
-            timerHandler.post(timerRunnable)
-        } catch (e: Exception) {
-            android.util.Log.e("RecordFragment", "Failed to start recording: ${e.message}", e)
-            Snackbar.make(binding.root, "Failed to start microphone: ${e.message}", Snackbar.LENGTH_LONG).show()
-            viewModel.reset()
-        }
-    }
-
-    private fun stopRecording() {
-        timerHandler.removeCallbacks(timerRunnable)
-        abandonAudioFocus()
-
-        try {
-            mediaRecorder?.apply { stop(); release() }
-        } catch (e: Exception) { /* ignore stop errors */ }
-        mediaRecorder = null
-
-        val file = outputFile ?: return
-        val durationMs = System.currentTimeMillis() - recordStartTime
-
-        // Validate audio duration and file size
-        if (durationMs < 1500 || file.length() < MIN_RECORDING_BYTES) {
-            file.delete()
-            viewModel.reset()
-            Snackbar.make(
-                binding.root,
-                "Recording was too short. Please speak and record for at least a few seconds.",
-                Snackbar.LENGTH_LONG
-            ).show()
-            return
-        }
-
+    private fun startRecordingService() {
+        val selfName = binding.etSelfName.text.toString().trim()
         val title = binding.etTitle.text.toString().trim()
-        val selfName = binding.etSelfName.text.toString().trim().takeIf { it.isNotBlank() }
 
-        // Persist self name for next time
-        if (selfName != null) {
-            requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .edit().putString(KEY_SELF_NAME, selfName).apply()
+        if (selfName.isNotBlank()) {
+            val prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            prefs.edit().putString(KEY_SELF_NAME, selfName).apply()
         }
 
-        viewModel.onRecordingStopped(file, title, selfName)
+        val intent = Intent(requireContext(), AudioRecordingService::class.java).apply {
+            action = AudioRecordingService.ACTION_START
+            putExtra(AudioRecordingService.EXTRA_TITLE, title)
+            putExtra(AudioRecordingService.EXTRA_SELF_NAME, selfName)
+        }
+
+        ContextCompat.startForegroundService(requireContext(), intent)
+    }
+
+    private fun stopRecordingService() {
+        val intent = Intent(requireContext(), AudioRecordingService::class.java).apply {
+            action = AudioRecordingService.ACTION_STOP
+        }
+        requireContext().startService(intent)
+    }
+
+    private fun observeRecordingService() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            AudioRecordingService.recordingState.collectLatest { serviceState ->
+                when (serviceState) {
+                    is ServiceState.Recording -> {
+                        recordStartTime = serviceState.startTimeMs
+                        viewModel.onRecordingStarted()
+                        timerHandler.removeCallbacks(timerRunnable)
+                        timerHandler.post(timerRunnable)
+                    }
+                    is ServiceState.Completed -> {
+                        timerHandler.removeCallbacks(timerRunnable)
+                        recordStartTime = 0L
+                        viewModel.onRecordingStopped(
+                            audioFile = serviceState.file,
+                            title = serviceState.title,
+                            selfName = serviceState.selfName.ifBlank { null }
+                        )
+                        AudioRecordingService.resetState()
+                    }
+                    is ServiceState.Error -> {
+                        timerHandler.removeCallbacks(timerRunnable)
+                        recordStartTime = 0L
+                        Snackbar.make(binding.root, serviceState.message, Snackbar.LENGTH_LONG).show()
+                        viewModel.reset()
+                        AudioRecordingService.resetState()
+                    }
+                    is ServiceState.Idle -> {
+                        if (viewModel.state.value == RecordState.RECORDING) {
+                            timerHandler.removeCallbacks(timerRunnable)
+                            recordStartTime = 0L
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun observeViewModel() {
@@ -236,7 +191,6 @@ class RecordFragment : Fragment() {
                     binding.btnRecord.backgroundTintList = ContextCompat.getColorStateList(
                         requireContext(), R.color.record_red)
                     binding.btnRecord.startAnimation(pulseAnim)
-                    binding.tvStatus.text = getString(R.string.recording_status_recording)
                     binding.tvStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.record_red))
                     binding.etTitle.isEnabled = false
                     binding.progressBar.visibility = View.GONE
@@ -258,7 +212,6 @@ class RecordFragment : Fragment() {
                     if (id != null) {
                         val bundle = Bundle().apply { putString("meetingId", id) }
                         findNavController().safeNavigate(R.id.action_record_to_detail, bundle)
-                        viewModel.reset()
                     }
                 }
                 RecordState.ERROR -> {
@@ -278,7 +231,7 @@ class RecordFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (viewModel.state.value == RecordState.RECORDING) stopRecording()
+        timerHandler.removeCallbacks(timerRunnable)
         _binding = null
     }
 }
