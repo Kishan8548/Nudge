@@ -9,6 +9,10 @@
     <img src="https://img.shields.io/badge/Live%20Demo-nudge--three--coral.vercel.app-00A896?style=for-the-badge&logo=vercel" alt="Live Demo" />
   </a>
   &nbsp;
+  <a href="https://github.com/Kishan8548/Nudge/releases/latest">
+    <img src="https://img.shields.io/badge/Download-Android%20APK-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Download Android APK" />
+  </a>
+  &nbsp;
   <a href="https://nudge-backend-8fri.onrender.com/docs">
     <img src="https://img.shields.io/badge/API%20Docs-FastAPI%20Swagger-009688?style=for-the-badge&logo=fastapi" alt="API Docs" />
   </a>
@@ -156,11 +160,12 @@ npm install
 npm run dev
 ```
 
-### 3. Android Application Setup
-1. Open the `android/` directory in **Android Studio**.
-2. Sync Gradle dependencies (`build.gradle.kts`).
-3. Verify the backend base URL in `RetrofitClient.kt` (configured for production Render by default).
-4. Deploy to an Android device or emulator running API 26 or higher.
+### 3. Android Application
+- **Direct APK Install:** Download the latest [`app-release.apk`](https://github.com/Kishan8548/Nudge/releases/latest) directly to your Android phone (API 26+) and tap to install.
+- **Build from Source:**
+  1. Open the `android/` directory in **Android Studio**.
+  2. Sync Gradle dependencies (`build.gradle.kts`).
+  3. Deploy to a connected Android device or emulator running API 26 or higher.
 
 ---
 
