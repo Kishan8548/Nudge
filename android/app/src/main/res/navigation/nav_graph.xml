@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <!-- Home — Meetings list -->
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.nudge.ai.ui.home.HomeFragment"
+        android:label="Meetings"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_home_to_detail"
+            app:destination="@id/meetingDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <!-- Meeting Detail — receives meetingId from either Home or Record -->
+    <fragment
+        android:id="@+id/meetingDetailFragment"
+        android:name="com.nudge.ai.ui.detail.MeetingDetailFragment"
+        android:label="Meeting Detail"
+        tools:layout="@layout/fragment_meeting_detail">
+        <argument
+            android:name="meetingId"
+            app:argType="string" />
+    </fragment>
+
+    <!-- Record -->
+    <fragment
+        android:id="@+id/recordFragment"
+        android:name="com.nudge.ai.ui.record.RecordFragment"
+        android:label="Record"
+        tools:layout="@layout/fragment_record">
+        <action
+            android:id="@+id/action_record_to_detail"
+            app:destination="@id/meetingDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <!-- Action Items -->
+    <fragment
+        android:id="@+id/actionItemsFragment"
+        android:name="com.nudge.ai.ui.actionitems.ActionItemsFragment"
+        android:label="Action Items"
+        tools:layout="@layout/fragment_action_items" />
+
+</navigation>

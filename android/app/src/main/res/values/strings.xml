@@ -1,3 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Nudge AI</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Meetings</string>
+    <string name="nav_record">Record</string>
+    <string name="nav_action_items">Actions</string>
+
+    <!-- Home -->
+    <string name="meetings_title">Meetings</string>
+    <string name="meetings_subtitle">Your recorded sessions</string>
+    <string name="meetings_empty">No meetings yet</string>
+    <string name="meetings_empty_sub">Tap the Record button to capture your first meeting</string>
+    <string name="meetings_loading">Loading meetings…</string>
+    <string name="meetings_error">Couldn\'t load meetings</string>
+    <string name="pull_to_refresh">Pull to refresh</string>
+
+    <!-- Meeting card -->
+    <string name="decisions_count">%d decisions</string>
+    <string name="action_items_count">%d action items</string>
+    <string name="duration_minutes">%d min</string>
+    <string name="delete_meeting">Delete meeting</string>
+    <string name="delete_meeting_confirm">Delete \"%s\"? This will also remove all its action items.</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- Record -->
+    <string name="record_title">Record Meeting</string>
+    <string name="meeting_title_hint">Meeting title (optional)</string>
+    <string name="meeting_title_placeholder">e.g. Q3 Planning, Sprint Retro…</string>
+    <string name="btn_start_recording">Start Recording</string>
+    <string name="btn_stop_recording">Stop &amp; Upload</string>
+    <string name="recording_status_ready">Ready to capture</string>
+    <string name="recording_status_recording">Recording tab audio</string>
+    <string name="recording_status_uploading">Uploading…</string>
+    <string name="recording_status_processing">AI is processing…</string>
+    <string name="recording_status_done">Done! Meeting saved.</string>
+    <string name="mic_permission_rationale">Nudge needs microphone access to record your meeting audio.</string>
+    <string name="permission_denied">Microphone permission denied</string>
+
+    <!-- Meeting Detail -->
+    <string name="detail_decisions">Decisions</string>
+    <string name="detail_action_items">Action Items</string>
+    <string name="detail_summary">Summary</string>
+    <string name="detail_transcript">Transcript</string>
+    <string name="needs_review_badge">Needs Review</string>
+    <string name="btn_approve">Approve</string>
+    <string name="btn_reject">Reject</string>
+    <string name="btn_mark_done">Mark Done</string>
+    <string name="owner_label">Owner: %s</string>
+    <string name="deadline_label">Due: %s</string>
+    <string name="confidence_label">Confidence: %.0f%%</string>
+    <string name="no_action_items">No action items extracted yet</string>
+    <string name="btn_process">Run AI Analysis</string>
+    <string name="processing">Running AI pipeline…</string>
+
+    <!-- Action Items -->
+    <string name="action_items_title">Action Items</string>
+    <string name="filter_all">All</string>
+    <string name="filter_pending">Pending</string>
+    <string name="filter_done">Done</string>
+    <string name="filter_review">Review</string>
+    <string name="no_items_filtered">No %s items</string>
+
+    <!-- Status labels -->
+    <string name="status_pending">Pending</string>
+    <string name="status_done">Done</string>
+    <string name="status_review">Needs Review</string>
+    <string name="status_escalated">Escalated</string>
+
+    <!-- Errors -->
+    <string name="error_network">No internet connection</string>
+    <string name="error_server">Server error. Try again.</string>
+    <string name="error_upload">Upload failed: %s</string>
+    <string name="retry">Retry</string>
+
+    <!-- Content descriptions for accessibility -->
+    <string name="cd_nudge_logo">Nudge AI logo</string>
+    <string name="cd_record_button">Record meeting</string>
+    <string name="cd_delete_meeting">Delete this meeting</string>
 </resources>

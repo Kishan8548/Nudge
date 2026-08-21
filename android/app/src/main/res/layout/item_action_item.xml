@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/NudgeCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Text -->
+        <TextView android:id="@+id/tvText"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="@color/text_primary" android:textSize="14sp"
+            android:fontFamily="sans-serif-medium" android:lineSpacingMultiplier="1.4"
+            android:layout_marginBottom="10dp" />
+
+        <!-- Owner + Deadline row -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:layout_marginBottom="10dp">
+
+            <TextView android:id="@+id/tvOwner"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <TextView android:id="@+id/tvDeadline"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textColor="@color/status_pending" android:textSize="12sp"
+                android:fontFamily="sans-serif-medium" android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Status + Review row -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:layout_marginBottom="10dp">
+
+            <TextView android:id="@+id/tvStatus"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:background="@drawable/chip_bg_amber"
+                android:textColor="@color/status_pending" android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:paddingStart="10dp" android:paddingEnd="10dp"
+                android:paddingTop="3dp" android:paddingBottom="3dp"
+                android:layout_marginEnd="8dp" />
+
+            <TextView android:id="@+id/tvReviewBadge"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:background="@drawable/chip_bg_orange"
+                android:textColor="@color/status_review" android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:paddingStart="10dp" android:paddingEnd="10dp"
+                android:paddingTop="3dp" android:paddingBottom="3dp"
+                android:text="@string/needs_review_badge"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Confidence bar -->
+        <ProgressBar android:id="@+id/confidenceBar"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent" android:layout_height="4dp"
+            android:progressTint="@color/teal_primary"
+            android:progressBackgroundTint="@color/surface_variant"
+            android:max="100" android:layout_marginBottom="12dp" />
+
+        <!-- Action buttons -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="end">
+
+            <Button android:id="@+id/btnReject"
+                style="@style/NudgeButton.Secondary"
+                android:layout_width="wrap_content" android:layout_height="36dp"
+                android:text="@string/btn_reject" android:textSize="12sp"
+                android:layout_marginEnd="8dp" android:visibility="gone" />
+
+            <Button android:id="@+id/btnApprove"
+                style="@style/NudgeButton.Secondary"
+                android:layout_width="wrap_content" android:layout_height="36dp"
+                android:text="@string/btn_approve" android:textSize="12sp"
+                android:layout_marginEnd="8dp" android:visibility="gone" />
+
+            <Button android:id="@+id/btnMarkDone"
+                style="@style/NudgeButton.Primary"
+                android:layout_width="wrap_content" android:layout_height="36dp"
+                android:text="@string/btn_mark_done" android:textSize="12sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

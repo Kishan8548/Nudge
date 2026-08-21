@@ -1,9 +1,108 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.NudgeAI" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Nudge AI Design System — OLED Dark Theme
+         Primary  : #0D9488 (Teal)
+         Secondary: #14B8A6 (Light Teal)
+         CTA      : #F97316 (Orange)
+         Background: #050505 (OLED Black)
+    -->
+
+    <style name="Base.Theme.NudgeAI" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Primary brand teal -->
+        <item name="colorPrimary">@color/teal_primary</item>
+        <item name="colorPrimaryVariant">@color/teal_secondary</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- Surface — OLED black -->
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+
+        <!-- Background -->
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+
+        <!-- Secondary / CTA orange -->
+        <item name="colorSecondary">@color/cta_orange</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- Outline -->
+        <item name="colorOutline">@color/outline</item>
+
+        <!-- Status bar transparent OLED -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/nav_bar</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- No title bar -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+        <!-- Ripple -->
+        <item name="colorControlHighlight">@color/ripple</item>
     </style>
 
     <style name="Theme.NudgeAI" parent="Base.Theme.NudgeAI" />
+
+    <!-- Card style -->
+    <style name="NudgeCard" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardBackgroundColor">@color/card_bg</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/card_stroke</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cardCornerRadius">16dp</item>
+    </style>
+
+    <!-- Bottom Navigation -->
+    <style name="NudgeBottomNav" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">@color/bottom_nav_bg</item>
+        <item name="itemIconTint">@color/nav_item_color</item>
+        <item name="itemTextColor">@color/nav_item_color</item>
+        <item name="itemRippleColor">@color/ripple</item>
+        <item name="elevation">8dp</item>
+    </style>
+
+    <!-- Button — Primary (Orange CTA) -->
+    <style name="NudgeButton.Primary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/cta_orange</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="cornerRadius">10dp</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans_semibold</item>
+    </style>
+
+    <!-- Button — Secondary (outline teal) -->
+    <style name="NudgeButton.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="strokeColor">@color/teal_primary</item>
+        <item name="android:textColor">@color/teal_primary</item>
+        <item name="cornerRadius">10dp</item>
+    </style>
+
+    <!-- Status Badge chips — extend TextView base -->
+    <style name="Badge.Pending" parent="Widget.AppCompat.TextView">
+        <item name="android:backgroundTint">@color/status_pending_bg</item>
+        <item name="android:textColor">@color/status_pending</item>
+    </style>
+    <style name="Badge.Done" parent="Widget.AppCompat.TextView">
+        <item name="android:backgroundTint">@color/status_done_bg</item>
+        <item name="android:textColor">@color/status_done</item>
+    </style>
+    <style name="Badge.Review" parent="Widget.AppCompat.TextView">
+        <item name="android:backgroundTint">@color/status_review_bg</item>
+        <item name="android:textColor">@color/status_review</item>
+    </style>
+
+    <!-- Text styles -->
+    <style name="TextAppearance.Nudge.Title" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans_bold</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+    <style name="TextAppearance.Nudge.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans</item>
+    </style>
+    <style name="TextAppearance.Nudge.Caption" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/text_muted</item>
+    </style>
 </resources>

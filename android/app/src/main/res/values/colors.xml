@@ -1,5 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- ── Brand Teal (matches web #0D9488 / #14B8A6) ── -->
+    <color name="teal_primary">#0D9488</color>
+    <color name="teal_secondary">#14B8A6</color>
+    <color name="teal_glow">#1A0D9488</color>
+
+    <!-- ── CTA Orange (matches web #F97316) ── -->
+    <color name="cta_orange">#F97316</color>
+    <color name="cta_orange_dark">#EA580C</color>
+
+    <!-- ── OLED Backgrounds ── -->
+    <color name="background">#050505</color>
+    <color name="surface">#0F0F13</color>
+    <color name="surface_variant">#16161A</color>
+    <color name="card_bg">#0A0A0F</color>
+    <color name="bottom_nav_bg">#0A0A0F</color>
+    <color name="nav_bar">#050505</color>
+
+    <!-- ── Text ── -->
+    <color name="text_primary">#F8FAFC</color>
+    <color name="text_secondary">#94A3B8</color>
+    <color name="text_muted">#475569</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- ── Borders / Strokes ── -->
+    <color name="card_stroke">#14FFFFFF</color>
+    <color name="outline">#1AFFFFFF</color>
+    <color name="divider">#0AFFFFFF</color>
+
+    <!-- ── Ripple ── -->
+    <color name="ripple">#1A0D9488</color>
+
+    <!-- ── Status Colors ── -->
+    <color name="status_pending">#F59E0B</color>
+    <color name="status_pending_bg">#26F59E0B</color>
+
+    <color name="status_done">#10B981</color>
+    <color name="status_done_bg">#2610B981</color>
+
+    <color name="status_review">#F97316</color>
+    <color name="status_review_bg">#26F97316</color>
+
+    <color name="status_escalated">#EF4444</color>
+    <color name="status_escalated_bg">#26EF4444</color>
+
+    <!-- ── Recording red pulse ── -->
+    <color name="record_red">#EF4444</color>
+    <color name="record_red_bg">#26EF4444</color>
 </resources>

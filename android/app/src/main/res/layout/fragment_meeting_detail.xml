@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Top bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="8dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_back"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="@color/text_secondary"
+                android:contentDescription="Back" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Meeting Detail"
+                android:textColor="@color/text_muted"
+                android:textSize="13sp"
+                android:layout_marginStart="4dp" />
+
+        </LinearLayout>
+
+        <!-- Title + date -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="16dp">
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_primary"
+                android:textSize="22sp"
+                android:fontFamily="sans-serif-black"
+                android:letterSpacing="-0.02"
+                android:lineSpacingMultiplier="1.2" />
+
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_muted"
+                android:textSize="12sp"
+                android:layout_marginTop="6dp" />
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View android:layout_width="match_parent" android:layout_height="1dp"
+            android:background="@color/divider" android:layout_marginBottom="16dp" />
+
+        <!-- Progress bar -->
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="gone"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Summary card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardSummary"
+            style="@style/NudgeCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone">
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="18dp">
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Summary"
+                    android:textColor="@color/teal_primary" android:textSize="11sp"
+                    android:letterSpacing="0.1" android:textAllCaps="true"
+                    android:fontFamily="sans-serif-medium" android:layout_marginBottom="8dp" />
+
+                <TextView android:id="@+id/tvSummary"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:textColor="@color/text_secondary" android:textSize="14sp"
+                    android:lineSpacingMultiplier="1.55" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Decisions header -->
+        <TextView android:id="@+id/tvDecisionsHeader"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Decisions"
+            android:textColor="@color/teal_primary" android:textSize="11sp"
+            android:letterSpacing="0.1" android:textAllCaps="true"
+            android:fontFamily="sans-serif-medium"
+            android:paddingStart="24dp" android:paddingEnd="24dp"
+            android:paddingBottom="10dp"
+            android:visibility="gone" />
+
+        <!-- Decisions container -->
+        <LinearLayout android:id="@+id/containerDecisions"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp" android:paddingEnd="20dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Action items header -->
+        <TextView android:id="@+id/tvActionItemsHeader"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Action Items"
+            android:textColor="@color/teal_primary" android:textSize="11sp"
+            android:letterSpacing="0.1" android:textAllCaps="true"
+            android:fontFamily="sans-serif-medium"
+            android:paddingStart="24dp" android:paddingEnd="24dp"
+            android:paddingBottom="10dp"
+            android:visibility="gone" />
+
+        <!-- Action items container -->
+        <LinearLayout android:id="@+id/containerActionItems"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp" android:paddingEnd="16dp"
+            android:paddingBottom="16dp" />
+
+        <!-- Process button (shown when no action items yet) -->
+        <Button
+            android:id="@+id/btnProcess"
+            style="@style/NudgeButton.Primary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="32dp"
+            android:text="@string/btn_process"
+            android:visibility="gone" />
+
+    </LinearLayout>
+</ScrollView>
