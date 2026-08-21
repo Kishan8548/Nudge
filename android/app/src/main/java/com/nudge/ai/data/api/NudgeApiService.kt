@@ -37,6 +37,12 @@ interface NudgeApiService {
         @Path("id") id: String
     ): Response<MessageResponse>
 
+    @PATCH("api/meetings/{id}")
+    suspend fun updateMeetingTitle(
+        @Path("id") id: String,
+        @Body body: UpdateMeetingTitleRequest
+    ): Response<Meeting>
+
     // ── Upload ───────────────────────────────────────────────────────────────
 
     /** Upload a .m4a / .webm audio file with a meeting title and optional self name. */

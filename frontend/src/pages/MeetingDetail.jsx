@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
 import { 
   ArrowLeft, Bot, Sparkles, CheckCircle2, AlertTriangle, 
-  Clock, User, Calendar, Bell, FileText, Loader2, GitBranch, Download
+  Clock, User, Calendar, Bell, FileText, Loader2, GitBranch, Download, Pencil, Check, X
 } from 'lucide-react';
 import { api } from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -18,6 +18,8 @@ export default function MeetingDetail() {
   const [processing, setProcessing] = useState(false);
   const [activityLogs, setActivityLogs] = useState({});
   const [similarMeetings, setSimilarMeetings] = useState([]);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState('');
 
   useEffect(() => {
     loadMeeting();
@@ -159,6 +161,22 @@ export default function MeetingDetail() {
     printWindow.onload = () => { printWindow.print(); };
   }
 
+  async function handleSaveTitle() {
+    const trimmed = editedTitle.trim();
+    if (!trimmed || trimmed === meeting.title) {
+      setIsEditingTitle(false);
+      return;
+    }
+    try {
+      await api.updateMeeting(id, { title: trimmed });
+      setMeeting(prev => ({ ...prev, title: trimmed }));
+      toast.success('Meeting title updated');
+      setIsEditingTitle(false);
+    } catch (err) {
+      toast.error(`Failed to update title: ${err.message}`);
+    }
+  }
+
   return (
     <div className="animate-fade-in">
       {/* Header */}
@@ -169,7 +187,43 @@ export default function MeetingDetail() {
       </div>
 
       <div className="page-header">
-        <h1>{meeting.title}</h1>
+        {isEditingTitle ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <input
+              type="text"
+              value={editedTitle}
+              onChange={(e) => setEditedTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSaveTitle();
+                if (e.key === 'Escape') setIsEditingTitle(false);
+              }}
+              autoFocus
+              className="input"
+              style={{ fontSize: '1.4rem', fontWeight: 'bold', padding: '6px 12px', minWidth: 320 }}
+            />
+            <button className="btn btn-sm btn-primary" onClick={handleSaveTitle} title="Save">
+              <Check size={16} />
+            </button>
+            <button className="btn btn-sm btn-ghost" onClick={() => setIsEditingTitle(false)} title="Cancel">
+              <X size={16} />
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <h1>{meeting.title}</h1>
+            <button
+              className="btn btn-sm btn-ghost"
+              onClick={() => {
+                setEditedTitle(meeting.title);
+                setIsEditingTitle(true);
+              }}
+              title="Edit meeting name"
+              style={{ color: 'var(--text-muted)', padding: 6 }}
+            >
+              <Pencil size={16} />
+            </button>
+          </div>
+        )}
         <p>
           <Calendar size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
           {new Date(meeting.created_at).toLocaleString()}

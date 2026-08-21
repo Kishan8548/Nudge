@@ -74,6 +74,8 @@ export const api = {
 
   getMeeting: (id) => get(`/api/meetings/${id}`),
 
+  updateMeeting: (id, data) => patch(`/api/meetings/${id}`, data),
+
   processMeeting: (id) => post(`/api/meetings/${id}/process`),
 
   deleteMeeting: (id) => del(`/api/meetings/${id}`),

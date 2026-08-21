@@ -40,6 +40,10 @@ class MeetingRepository(
         Unit
     }
 
+    suspend fun updateMeetingTitle(id: String, newTitle: String): Result<Meeting> = safeCall {
+        api.updateMeetingTitle(id, com.nudge.ai.data.model.UpdateMeetingTitleRequest(newTitle)).requireBody()
+    }
+
     // ── Upload ────────────────────────────────────────────────────────────────
 
     /**

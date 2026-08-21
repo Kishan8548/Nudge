@@ -219,6 +219,53 @@ def process_meeting(request: Request, meeting_id: str):
             detail=f"Agent processing failed: {e}",
         )
 
+from pydantic import BaseModel, Field
+
+
+class UpdateMeetingRequest(BaseModel):
+    title: str = Field(..., min_length=1, max_length=200, description="New meeting title")
+
+
+@router.patch("/{meeting_id}")
+def update_meeting(request: Request, meeting_id: str, body: UpdateMeetingRequest):
+    """Update a meeting title in MongoDB and RAG vector search index."""
+    db = request.app.state.db
+
+    try:
+        oid = ObjectId(meeting_id)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid meeting ID format")
+
+    meeting = db[MEETINGS].find_one({"_id": oid})
+    if not meeting:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+
+    new_title = body.title.strip()
+    if not new_title:
+        raise HTTPException(status_code=400, detail="Title cannot be empty")
+
+    db[MEETINGS].update_one(
+        {"_id": oid},
+        {"$set": {"title": new_title, "updated_at": datetime.utcnow()}},
+    )
+
+    # Also update meeting_embeddings title if indexed
+    try:
+        db["meeting_embeddings"].update_one(
+            {"meeting_id": oid},
+            {"$set": {"title": new_title}},
+        )
+    except Exception as e:
+        logger.warning(f"Could not update title in meeting_embeddings: {e}")
+
+    # Return full updated meeting
+    updated = db[MEETINGS].find_one({"_id": oid})
+    action_items = list(db[ACTION_ITEMS].find({"meeting_id": oid}))
+    result = _serialize(updated)
+    result["action_items"] = [_serialize(ai) for ai in action_items]
+    return result
+
+
 @router.delete("/{meeting_id}")
 def delete_meeting(request: Request, meeting_id: str):
     """Delete a meeting and all its associated action items and embeddings."""

@@ -94,3 +94,8 @@ data class MessageResponse(
     @SerializedName("status")      val status: String? = null,
     @SerializedName("meeting_id")  val meetingId: String? = null
 )
+
+/** Body for PATCH /api/meetings/{id} */
+data class UpdateMeetingTitleRequest(
+    @SerializedName("title") val title: String
+)

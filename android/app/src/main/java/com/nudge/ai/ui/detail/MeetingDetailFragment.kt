@@ -37,11 +37,41 @@ class MeetingDetailFragment : Fragment() {
                 findNavController().popBackStack()
             }
         }
+        binding.btnEditTitle.setOnClickListener { showEditTitleDialog() }
         binding.btnProcess.setOnClickListener { viewModel.processMeeting(meetingId) }
 
         meetingId = arguments?.getString("meetingId") ?: ""
         viewModel.loadMeeting(meetingId)
         observeViewModel()
+    }
+
+    private fun showEditTitleDialog() {
+        val currentTitle = viewModel.meeting.value?.title ?: binding.tvTitle.text.toString()
+        val context = requireContext()
+        val container = android.widget.FrameLayout(context).apply {
+            setPadding(60, 20, 60, 10)
+        }
+        val input = com.google.android.material.textfield.TextInputEditText(context).apply {
+            setText(currentTitle)
+            setSelection(text?.length ?: 0)
+            hint = "Meeting title"
+            setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.text_primary))
+            setHintTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.text_muted))
+            textSize = 16f
+        }
+        container.addView(input)
+
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
+            .setTitle("Edit Meeting Name")
+            .setView(container)
+            .setPositiveButton("Save") { _, _ ->
+                val newTitle = input.text.toString().trim()
+                if (newTitle.isNotBlank() && newTitle != currentTitle) {
+                    viewModel.updateTitle(meetingId, newTitle)
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun observeViewModel() {

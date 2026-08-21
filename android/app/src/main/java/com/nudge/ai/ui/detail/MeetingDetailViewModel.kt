@@ -75,4 +75,18 @@ class MeetingDetailViewModel : ViewModel() {
             }
         }
     }
+
+    fun updateTitle(id: String, newTitle: String) {
+        if (id.isBlank() || newTitle.isBlank()) return
+        viewModelScope.launch {
+            _isLoading.value = true
+            repository.updateMeetingTitle(id, newTitle)
+                .onSuccess {
+                    _meeting.value = it
+                    _actionTaken.value = "Meeting name updated"
+                }
+                .onFailure { _error.value = it.message }
+            _isLoading.value = false
+        }
+    }
 }
