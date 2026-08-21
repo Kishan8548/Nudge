@@ -21,6 +21,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.nudge.ai.R
 import com.nudge.ai.databinding.FragmentRecordBinding
+import com.nudge.ai.utils.safeNavigate
 import java.io.File
 
 private const val PREFS_NAME = "nudge_prefs"
@@ -232,7 +233,7 @@ class RecordFragment : Fragment() {
                     val id = viewModel.uploadedMeetingId.value
                     if (id != null) {
                         val bundle = Bundle().apply { putString("meetingId", id) }
-                        findNavController().navigate(R.id.action_record_to_detail, bundle)
+                        findNavController().safeNavigate(R.id.action_record_to_detail, bundle)
                         viewModel.reset()
                     }
                 }

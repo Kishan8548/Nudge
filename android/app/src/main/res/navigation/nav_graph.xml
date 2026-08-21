@@ -19,9 +19,16 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_home_to_record"
+            app:destination="@id/recordFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
-    <!-- Meeting Detail — receives meetingId from either Home or Record -->
+    <!-- Meeting Detail -->
     <fragment
         android:id="@+id/meetingDetailFragment"
         android:name="com.nudge.ai.ui.detail.MeetingDetailFragment"
@@ -41,6 +48,8 @@
         <action
             android:id="@+id/action_record_to_detail"
             app:destination="@id/meetingDetailFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="false"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
@@ -52,6 +61,14 @@
         android:id="@+id/actionItemsFragment"
         android:name="com.nudge.ai.ui.actionitems.ActionItemsFragment"
         android:label="Action Items"
-        tools:layout="@layout/fragment_action_items" />
+        tools:layout="@layout/fragment_action_items">
+        <action
+            android:id="@+id/action_items_to_detail"
+            app:destination="@id/meetingDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
 
 </navigation>

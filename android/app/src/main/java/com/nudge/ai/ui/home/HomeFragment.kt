@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.nudge.ai.R
 import com.nudge.ai.databinding.FragmentHomeBinding
+import com.nudge.ai.utils.safeNavigate
 
 class HomeFragment : Fragment() {
 
@@ -34,7 +35,7 @@ class HomeFragment : Fragment() {
 
         // CTA in empty state → navigate to Record tab
         binding.btnGoRecord.setOnClickListener {
-            findNavController().navigate(R.id.recordFragment)
+            findNavController().safeNavigate(R.id.action_home_to_record)
         }
 
         // Retry button in error state
@@ -48,7 +49,7 @@ class HomeFragment : Fragment() {
         adapter = MeetingsAdapter(
             onItemClick = { meeting ->
                 val bundle = Bundle().apply { putString("meetingId", meeting.id) }
-                findNavController().navigate(R.id.action_home_to_detail, bundle)
+                findNavController().safeNavigate(R.id.action_home_to_detail, bundle)
             },
             onDeleteClick = { meeting ->
                 AlertDialog.Builder(requireContext())

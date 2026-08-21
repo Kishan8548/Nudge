@@ -32,7 +32,11 @@ class MeetingDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btnBack.setOnClickListener { findNavController().popBackStack() }
+        binding.btnBack.setOnClickListener {
+            if (!findNavController().navigateUp()) {
+                findNavController().popBackStack()
+            }
+        }
         binding.btnProcess.setOnClickListener { viewModel.processMeeting(meetingId) }
 
         meetingId = arguments?.getString("meetingId") ?: ""

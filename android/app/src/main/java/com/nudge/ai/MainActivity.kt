@@ -46,6 +46,20 @@ class MainActivity : AppCompatActivity() {
         // Wire bottom nav ↔ nav graph
         binding.bottomNav.setupWithNavController(navController)
 
+        // Hide bottom nav on detail screen, show on top tabs
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.meetingDetailFragment) {
+                binding.bottomNav.visibility = android.view.View.GONE
+                binding.bottomNavDivider.visibility = android.view.View.GONE
+            } else {
+                binding.bottomNav.visibility = android.view.View.VISIBLE
+                binding.bottomNavDivider.visibility = android.view.View.VISIBLE
+            }
+        }
+
+        // Avoid reload on reselecting the same active tab
+        binding.bottomNav.setOnItemReselectedListener { /* no-op */ }
+
         // Create notification channels (must run before any notification fires)
         NotificationHelper.createChannels(this)
 
