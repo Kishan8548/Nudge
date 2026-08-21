@@ -114,10 +114,18 @@ def extraction_node(state: dict) -> dict:
         system_prompt += MY_TASKS_SUFFIX.format(self_name=self_name)
 
     try:
-        result: ExtractionResult = structured_llm.invoke([
+        from backend.utils.retry import call_with_retry
+
+        messages = [
             SystemMessage(content=system_prompt),
             HumanMessage(content=f"Meeting Transcript:\n\n{transcript}"),
-        ])
+        ]
+        result: ExtractionResult = call_with_retry(
+            structured_llm.invoke,
+            messages,
+            max_retries=3,
+            initial_delay=1.5,
+        )
 
         action_items: list[dict] = []
         needs_review = False

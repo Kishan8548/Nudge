@@ -53,16 +53,20 @@ def _transcribe_chunk(
         tmp_path = tmp.name
 
     try:
-        with open(tmp_path, "rb") as f:
-            kwargs: dict = {
-                "file": (filename, f),
-                "model": model,
-                "response_format": "verbose_json",
-            }
-            if language:
-                kwargs["language"] = language
+        from backend.utils.retry import call_with_retry
 
-            response = client.audio.transcriptions.create(**kwargs)
+        def _do_transcribe():
+            with open(tmp_path, "rb") as f:
+                kwargs: dict = {
+                    "file": (filename, f),
+                    "model": model,
+                    "response_format": "verbose_json",
+                }
+                if language:
+                    kwargs["language"] = language
+                return client.audio.transcriptions.create(**kwargs)
+
+        response = call_with_retry(_do_transcribe, max_retries=3, initial_delay=2.0)
 
         segments = []
         raw_segs = getattr(response, "segments", None) or []

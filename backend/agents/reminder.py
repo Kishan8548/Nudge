@@ -84,7 +84,7 @@ def reminder_node(state: dict) -> dict:
         if reminder_count >= MAX_REMINDERS_BEFORE_ESCALATION:
             # Escalate to manager
             updated["status"] = "escalated"
-            send_escalation(
+            sent = send_escalation(
                 to_email=item["owner_email"],
                 manager_email="manager@example.com",  # In production: from roster
                 owner_name=owner_name,
@@ -98,13 +98,14 @@ def reminder_node(state: dict) -> dict:
                 deadline=deadline_display,
                 reminder_count=reminder_count,
             )
+            status_tag = "🔴 ESCALATED" if sent else "🔴 ESCALATED (email failed/simulated)"
             actions_taken.append(
-                f"🔴 ESCALATED: '{item_text}' (owner: {owner_name}, "
+                f"{status_tag}: '{item_text}' (owner: {owner_name}, "
                 f"after {reminder_count} reminders)"
             )
         else:
             # Send escalating reminder
-            send_reminder(
+            sent = send_reminder(
                 to_email=item["owner_email"],
                 owner_name=owner_name,
                 action_item_text=item_text,
@@ -119,9 +120,9 @@ def reminder_node(state: dict) -> dict:
                 reminder_count=reminder_count,
             )
             tone = {1: "gentle", 2: "firm"}.get(reminder_count, "urgent")
+            status_tag = f"📧 Sent {tone} reminder #{reminder_count}" if sent else f"📧 Queued {tone} reminder #{reminder_count} (email skipped/simulated)"
             actions_taken.append(
-                f"📧 Sent {tone} reminder #{reminder_count}: '{item_text}' "
-                f"(owner: {owner_name})"
+                f"{status_tag}: '{item_text}' (owner: {owner_name})"
             )
 
         updated_items.append(updated)

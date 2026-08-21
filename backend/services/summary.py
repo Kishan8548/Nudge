@@ -36,16 +36,19 @@ def generate_meeting_summary(transcript: str) -> str:
         return "No meaningful transcript content to summarize."
 
     try:
+        from backend.utils.retry import call_with_retry
+
         llm = ChatGroq(
             model="llama-3.3-70b-versatile",
             api_key=settings.GROQ_API_KEY.get_secret_value(),
             temperature=0.3,
         )
 
-        result = llm.invoke([
+        messages = [
             SystemMessage(content=SUMMARY_PROMPT),
             HumanMessage(content=f"TRANSCRIPT:\n{transcript[:8000]}"),
-        ])
+        ]
+        result = call_with_retry(llm.invoke, messages, max_retries=3, initial_delay=1.5)
 
         summary = result.content.strip()
         logger.info(f"Generated meeting summary ({len(summary)} chars)")

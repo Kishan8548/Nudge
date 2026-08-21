@@ -60,7 +60,15 @@ async def upload_meeting(
     file_path = upload_dir / safe_name
 
     try:
+        import hashlib
         content = await file.read()
+
+        # Validate minimum file size (prevent uploading 0-byte or corrupted empty audio)
+        if len(content) < 1024:
+            raise HTTPException(
+                status_code=400,
+                detail="Audio file is too small or empty (< 1KB). Please record or select a valid audio file.",
+            )
 
         # Validate file size (up to 200 MB — chunked transcription handles the rest)
         file_size_mb = len(content) / (1024 * 1024)
@@ -74,10 +82,30 @@ async def upload_meeting(
                 ),
             )
 
+        file_hash = hashlib.sha256(content).hexdigest()
+
+        # Check for duplicate upload (same file within last 24h)
+        db = request.app.state.db
+        existing = db[MEETINGS].find_one({"file_hash": file_hash})
+        if existing:
+            logger.info(f"Duplicate upload detected: existing meeting {existing['_id']}")
+            transcript_text = existing.get("raw_transcript", "")
+            return {
+                "meeting_id": str(existing["_id"]),
+                "title": existing.get("title", "Existing Meeting"),
+                "transcript_preview": (
+                    transcript_text[:500] + "..." if len(transcript_text) > 500 else transcript_text
+                ),
+                "segments_count": len(existing.get("diarized_transcript", [])),
+                "language": existing.get("language"),
+                "duration_seconds": existing.get("duration_seconds"),
+                "duplicate": True,
+            }
+
         with open(file_path, "wb") as f:
             f.write(content)
 
-        logger.info(f"Saved upload: {safe_name} ({file_size_mb:.1f} MB)")
+        logger.info(f"Saved upload: {safe_name} ({file_size_mb:.1f} MB, hash={file_hash[:8]})")
 
     except HTTPException:
         raise
@@ -103,6 +131,7 @@ async def upload_meeting(
         "decisions": [],
         "needs_human_review": False,
         "audio_file": str(file_path),
+        "file_hash": file_hash,
         "language": transcript_result.get("language"),
         "duration_seconds": transcript_result.get("duration"),
         "self_name": self_name,  # who recorded — used to tag is_mine on action items
