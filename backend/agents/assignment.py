@@ -13,8 +13,9 @@ from backend.utils.date_parser import resolve_relative_date
 logger = logging.getLogger(__name__)
 
 # ----- Team Roster -----
-# Hardcoded for hackathon demo. In production, load from DB or CSV upload.
+# In production, load from DB or CSV upload.
 DEFAULT_ROSTER: list[dict] = [
+    {"name": "Kishan", "email": "kishan@example.com"},
     {"name": "John Smith", "email": "john@example.com"},
     {"name": "Jane Doe", "email": "jane@example.com"},
     {"name": "Alice Johnson", "email": "alice@example.com"},

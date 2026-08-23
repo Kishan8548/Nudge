@@ -81,6 +81,7 @@ def reminder_node(state: dict) -> dict:
         item_text = item.get("text", "Unknown task")
         deadline_display = deadline_str or "Not specified"
 
+        item_id_str = str(item.get("id", ""))
         if reminder_count >= MAX_REMINDERS_BEFORE_ESCALATION:
             # Escalate to manager
             updated["status"] = "escalated"
@@ -90,6 +91,7 @@ def reminder_node(state: dict) -> dict:
                 owner_name=owner_name,
                 action_item_text=item_text,
                 deadline=deadline_display,
+                action_item_id=item_id_str,
             )
             # Also notify Slack
             send_escalation_slack(
@@ -111,6 +113,7 @@ def reminder_node(state: dict) -> dict:
                 action_item_text=item_text,
                 deadline=deadline_display,
                 reminder_count=reminder_count,
+                action_item_id=item_id_str,
             )
             # Also notify Slack
             send_reminder_slack(

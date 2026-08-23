@@ -15,6 +15,7 @@ from datetime import datetime
 from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 from backend.db.models import ACTION_ITEMS
@@ -302,6 +303,173 @@ def review_action_item(
             },
         )
         return {"message": "Action item rejected", "item_id": item_id}
+
+
+@router.get("/{item_id}/quick-complete", response_class=HTMLResponse)
+def quick_complete_action_item(request: Request, item_id: str):
+    """1-Click Task Completion endpoint used in Gmail and WhatsApp nudges.
+
+    Instantly marks the action item as 'done' in MongoDB without requiring login,
+    appends an audit log entry, and serves a responsive confirmation page.
+    """
+    db = request.app.state.db
+    oid = _parse_oid(item_id)
+
+    item = db[ACTION_ITEMS].find_one({"_id": oid})
+    if not item:
+        return HTMLResponse(
+            status_code=404,
+            content="""
+            <!DOCTYPE html>
+            <html>
+            <head><meta charset="utf-8"><title>Task Not Found | Nudge AI</title>
+            <style>
+              body { background:#0A0A0F; color:#F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }
+              .card { background:#16161A; border:1px solid #26EF4444; border-radius:16px; padding:32px; text-align:center; max-width:400px; }
+              h1 { color:#EF4444; font-size:20px; }
+            </style>
+            </head>
+            <body>
+              <div class="card">
+                <h1>Task Not Found</h1>
+                <p>This action item may have already been deleted or completed.</p>
+              </div>
+            </body>
+            </html>
+            """
+        )
+
+    now = datetime.utcnow()
+    # Update status to done if not already
+    if item.get("status") != "done":
+        db[ACTION_ITEMS].update_one(
+            {"_id": oid},
+            {
+                "$set": {"status": "done", "updated_at": now},
+                "$push": {
+                    "activity_log": {
+                        "ts": now.isoformat(),
+                        "event": "completed_via_link",
+                        "detail": "Action item marked complete via 1-Click Email/WhatsApp action",
+                    }
+                },
+            },
+        )
+
+    task_text = item.get("text", "Meeting Action Item")
+    owner_name = item.get("owner_name", "Team Member")
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Task Completed | Nudge AI</title>
+      <style>
+        * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+        body {{
+          background: #050505;
+          color: #F8FAFC;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+        }}
+        .card {{
+          background: #0F0F13;
+          border: 1px solid rgba(13, 148, 136, 0.3);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 40px rgba(13, 148, 136, 0.15);
+          border-radius: 24px;
+          padding: 40px 32px;
+          text-align: center;
+          max-width: 440px;
+          width: 100%;
+          animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }}
+        @keyframes popIn {{
+          from {{ opacity: 0; transform: scale(0.92) translateY(10px); }}
+          to {{ opacity: 1; transform: scale(1) translateY(0); }}
+        }}
+        .icon-wrap {{
+          width: 72px;
+          height: 72px;
+          background: rgba(16, 185, 129, 0.12);
+          border: 2px solid #10B981;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 20px;
+          font-size: 34px;
+          color: #10B981;
+        }}
+        .badge {{
+          display: inline-block;
+          background: rgba(16, 185, 129, 0.15);
+          color: #10B981;
+          font-weight: 700;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          padding: 4px 12px;
+          border-radius: 999px;
+          margin-bottom: 12px;
+        }}
+        h1 {{
+          font-size: 24px;
+          font-weight: 800;
+          color: #FFFFFF;
+          margin-bottom: 8px;
+        }}
+        .task-box {{
+          background: #16161A;
+          border-radius: 14px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          padding: 16px;
+          margin: 20px 0;
+          text-align: left;
+        }}
+        .task-text {{
+          font-size: 15px;
+          font-weight: 600;
+          color: #F8FAFC;
+          line-height: 1.4;
+          margin-bottom: 6px;
+        }}
+        .task-meta {{
+          font-size: 12px;
+          color: #94A3B8;
+        }}
+        .footer {{
+          font-size: 13px;
+          color: #64748B;
+          line-height: 1.5;
+        }}
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="icon-wrap">✓</div>
+        <div class="badge">Status: Done</div>
+        <h1>Task Completed!</h1>
+        <p style="color: #94A3B8; font-size: 14px;">Nudge AI has recorded your update and cancelled further reminders.</p>
+        
+        <div class="task-box">
+          <div class="task-text">{task_text}</div>
+          <div class="task-meta">Owner: <strong>{owner_name}</strong></div>
+        </div>
+
+        <div class="footer">
+          You can now close this tab. Your dashboard and Android app have been updated in real-time.
+        </div>
+      </div>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
 
 
 # ----- Helpers -----

@@ -103,7 +103,21 @@ def send_reminder_slack(
         urgency_label = "URGENT — Overdue"
         urgency_emoji = "🔴"
 
-    dashboard_url = "http://localhost:5173/action-items"
+    base_url = settings.BASE_API_URL.rstrip("/")
+    quick_complete_url = f"{base_url}/api/action-items/{item_id}/quick-complete" if item_id else f"{base_url}/dashboard"
+
+    action_elements = [
+        {
+            "type": "button",
+            "text": {
+                "type": "plain_text",
+                "text": "✅ Mark Complete (1-Click)",
+                "emoji": True,
+            },
+            "url": quick_complete_url,
+            "style": "primary",
+        }
+    ]
 
     payload = {
         "attachments": [
@@ -141,18 +155,7 @@ def send_reminder_slack(
                     },
                     {
                         "type": "actions",
-                        "elements": [
-                            {
-                                "type": "button",
-                                "text": {
-                                    "type": "plain_text",
-                                    "text": "✅ View Dashboard",
-                                    "emoji": True,
-                                },
-                                "url": dashboard_url,
-                                "style": "primary",
-                            }
-                        ],
+                        "elements": action_elements,
                     },
                     {
                         "type": "context",

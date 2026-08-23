@@ -49,6 +49,9 @@ class Settings(BaseSettings):
     # --- File Uploads ---
     UPLOAD_DIR: str = "data/uploads"
 
+    # --- Public Backend URL (used in email and WhatsApp 1-click links) ---
+    BASE_API_URL: str = "https://nudge-backend-8fri.onrender.com"
+
     @property
     def cors_origins_list(self) -> list[str]:
         """Parse comma-separated CORS origins into a list."""
