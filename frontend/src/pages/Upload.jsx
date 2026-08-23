@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useDropzone } from 'react-dropzone';
 import toast from 'react-hot-toast';
-import { Upload as UploadIcon, FileAudio, X, Loader2 } from 'lucide-react';
+import { Upload as UploadIcon, FileAudio, X, Loader2, Puzzle, ArrowRight } from 'lucide-react';
 import { api } from '../api/client';
 
 const ACCEPTED_TYPES = {
@@ -98,6 +98,64 @@ export default function UploadPage() {
       <div className="page-header">
         <h1>Upload Meeting</h1>
         <p>Upload an audio or video file — Whisper AI transcribes it in seconds</p>
+      </div>
+
+      {/* Chrome Extension Live Meeting Banner */}
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(13, 148, 136, 0.08))',
+        border: '1px solid rgba(56, 189, 248, 0.25)',
+        borderRadius: '14px',
+        padding: '16px 20px',
+        marginBottom: '24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '12px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '10px',
+            background: 'rgba(56, 189, 248, 0.18)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#38BDF8',
+            flexShrink: 0
+          }}>
+            <Puzzle size={20} />
+          </div>
+          <div>
+            <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#F8FAFC' }}>
+              Recording a live Google Meet or Zoom call?
+            </div>
+            <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>
+              Use the Nudge Chrome Extension for 1-click tab audio capture without background echo.
+            </div>
+          </div>
+        </div>
+        <a
+          href="https://github.com/Kishan8548/Nudge/tree/main/extension"
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '8px 16px',
+            background: '#38BDF8',
+            color: '#050505',
+            borderRadius: '8px',
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            textDecoration: 'none',
+            flexShrink: 0
+          }}
+        >
+          Get Extension <ArrowRight size={14} />
+        </a>
       </div>
 
       <div className="upload-container glass-card">

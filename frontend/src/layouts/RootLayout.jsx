@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router';
 import { 
   LayoutDashboard, Upload, ListChecks, Menu, X, 
-  Zap, Bot, BarChart3
+  Zap, Bot, BarChart3, Smartphone, Puzzle
 } from 'lucide-react';
 
 import NudgeLogo from '../components/NudgeLogo';
@@ -54,9 +54,56 @@ export default function RootLayout() {
         </nav>
 
         <div className="sidebar-footer">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
+            <a 
+              href="https://github.com/Kishan8548/Nudge/releases/latest" 
+              target="_blank" 
+              rel="noreferrer"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 12px',
+                background: 'rgba(16, 185, 129, 0.1)',
+                border: '1px solid rgba(16, 185, 129, 0.25)',
+                borderRadius: '8px',
+                color: '#10B981',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                textDecoration: 'none',
+                transition: 'background 150ms',
+              }}
+            >
+              <Smartphone size={14} />
+              <span>Android App (APK)</span>
+            </a>
+            <a 
+              href="https://github.com/Kishan8548/Nudge/tree/main/extension" 
+              target="_blank" 
+              rel="noreferrer"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 12px',
+                background: 'rgba(56, 189, 248, 0.1)',
+                border: '1px solid rgba(56, 189, 248, 0.25)',
+                borderRadius: '8px',
+                color: '#38BDF8',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                textDecoration: 'none',
+                transition: 'background 150ms',
+              }}
+            >
+              <Puzzle size={14} />
+              <span>Chrome Extension</span>
+            </a>
+          </div>
+
           <div className="sidebar-badge">
             <Zap size={14} />
-            <span>Powered by Groq + LangGraph</span>
+            <span>Groq + LangGraph Engine</span>
           </div>
         </div>
       </aside>

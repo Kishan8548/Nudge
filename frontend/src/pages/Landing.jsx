@@ -4,7 +4,8 @@ import {
   Bot, Mic, Brain, BellRing, ChevronRight,
   GitBranch, Zap, Shield, Search, Users, Clock,
   ExternalLink, BarChart3, CheckCircle2, ArrowRight,
-  FileAudio, ListChecks, AlertTriangle, Activity
+  FileAudio, ListChecks, AlertTriangle, Activity,
+  Smartphone, Puzzle, Download, Laptop, X
 } from 'lucide-react';
 import NudgeLogo from '../components/NudgeLogo';
 
@@ -105,8 +106,10 @@ function TypingText({ words }) {
 export default function Landing() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
+  const [showExtModal, setShowExtModal] = useState(false);
   const [heroRef, heroVisible] = useReveal();
   const [bentoRef, bentoVisible] = useReveal();
+  const [ecoRef, ecoVisible] = useReveal();
   const [statsRef, statsVisible] = useReveal();
 
   useEffect(() => {
@@ -126,6 +129,14 @@ export default function Landing() {
             <span className="lp-brand-tag">AI</span>
           </a>
           <nav className="lp-nav-links">
+            <button onClick={() => setShowExtModal(true)} className="lp-nav-link" style={{ background: 'none', border: 'none', font: 'inherit' }}>
+              <Puzzle size={14} />
+              Chrome Extension
+            </button>
+            <a href="https://github.com/Kishan8548/Nudge/releases/latest" target="_blank" rel="noreferrer" className="lp-nav-link">
+              <Smartphone size={14} />
+              Android APK
+            </a>
             <a href="https://github.com/Kishan8548/Nudge" target="_blank" rel="noreferrer" className="lp-nav-link">
               <GitBranch size={14} />
               GitHub
@@ -152,7 +163,7 @@ export default function Landing() {
         <div className={`lp-hero-inner ${heroVisible ? 'reveal-in' : ''}`}>
           <a href="https://github.com/Kishan8548/Nudge" target="_blank" rel="noreferrer" className="hero-pill">
             <span className="hero-pill-dot" />
-            <span>Open Source · FastAPI + LangGraph + Kotlin</span>
+            <span>Open Source · Chrome Extension + Android App + FastAPI</span>
             <ArrowRight size={11} />
           </a>
 
@@ -164,7 +175,7 @@ export default function Landing() {
           </h1>
 
           <p className="hero-sub">
-            A LangGraph multi-agent engine that transcribes every meeting,
+            A LangGraph multi-agent engine that captures meetings from your browser tab or phone,
             extracts action items with confidence scores, assigns owners,
             and autonomously reminds your team — until every task is done.
           </p>
@@ -175,14 +186,21 @@ export default function Landing() {
               <ArrowRight size={16} />
             </button>
             <a
-              href="https://github.com/Kishan8548/Nudge"
+              href="https://github.com/Kishan8548/Nudge/releases/latest"
               target="_blank"
               rel="noreferrer"
               className="hero-btn-secondary"
             >
-              <GitBranch size={15} />
-              View Source
+              <Smartphone size={16} color="#10B981" />
+              Download APK (v1.1.0)
             </a>
+            <button
+              onClick={() => setShowExtModal(true)}
+              className="hero-btn-secondary"
+            >
+              <Puzzle size={16} color="#38BDF8" />
+              Chrome Extension
+            </button>
           </div>
 
           {/* Mini stats bar */}
@@ -320,6 +338,77 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ── ECOSYSTEM & APPS SECTION ── */}
+      <section className="lp-section" ref={ecoRef}>
+        <div className={`lp-section-inner ${ecoVisible ? 'reveal-in' : ''}`}>
+          <p className="section-eyebrow">Multi-Platform Ingestion & Follow-Ups</p>
+          <h2 className="section-h2">Capture anywhere.<br />Follow up everywhere.</h2>
+          <p className="section-sub" style={{ color: '#94A3B8', fontSize: '1rem', maxWidth: '600px', margin: '0 auto 40px' }}>
+            Nudge AI captures meetings from your desktop browser or phone, and follows up autonomously across exact Android alarms, Gmail 1-click actions, and WhatsApp.
+          </p>
+
+          <div className="eco-grid">
+            {/* Chrome Extension Card */}
+            <div className="eco-card eco-card-chrome">
+              <div className="eco-card-header">
+                <div className="eco-icon-wrap" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8' }}>
+                  <Puzzle size={26} />
+                </div>
+                <div>
+                  <span className="eco-badge eco-badge-blue">Chrome Extension · Manifest V3</span>
+                  <h3 className="eco-title">1-Click Desktop Meeting Capture</h3>
+                </div>
+              </div>
+              <p className="eco-desc">
+                Records tab audio from Google Meet and Zoom Web without inviting any intrusive recording bots. Features offscreen chunking to capture meetings up to 200 MB with zero echo.
+              </p>
+              <ul className="eco-list">
+                <li><CheckCircle2 size={15} color="#38BDF8" /> Direct Tab Audio Capture (Google Meet / Zoom)</li>
+                <li><CheckCircle2 size={15} color="#38BDF8" /> Zero Bot Join & Zero Audio Echo</li>
+                <li><CheckCircle2 size={15} color="#38BDF8" /> Live Duration Counter & 1-Click Upload</li>
+              </ul>
+              <div className="eco-actions">
+                <button className="eco-btn-primary" onClick={() => setShowExtModal(true)}>
+                  <Puzzle size={15} /> Setup Extension Guide
+                </button>
+                <a href="https://github.com/Kishan8548/Nudge/tree/main/extension" target="_blank" rel="noreferrer" className="eco-btn-secondary">
+                  <GitBranch size={15} /> View Extension Code
+                </a>
+              </div>
+            </div>
+
+            {/* Android App Card */}
+            <div className="eco-card eco-card-android">
+              <div className="eco-card-header">
+                <div className="eco-icon-wrap" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10B981' }}>
+                  <Smartphone size={26} />
+                </div>
+                <div>
+                  <span className="eco-badge eco-badge-green">Android Native · Kotlin v1.1.0</span>
+                  <h3 className="eco-title">Native App & Exact System Alarms</h3>
+                </div>
+              </div>
+              <p className="eco-desc">
+                Native Kotlin application with exact system alarm integration. Rings heads-up lock-screen alerts on time even when the app is completely off or in Android Doze mode.
+              </p>
+              <ul className="eco-list">
+                <li><CheckCircle2 size={15} color="#10B981" /> Exact <code>AlarmManager</code> Hardware Wake Alarms</li>
+                <li><CheckCircle2 size={15} color="#10B981" /> Home Screen Quick Record AppWidget</li>
+                <li><CheckCircle2 size={15} color="#10B981" /> Auto-Boot Recovery & Real-Time Sync</li>
+              </ul>
+              <div className="eco-actions">
+                <a href="https://github.com/Kishan8548/Nudge/releases/latest" target="_blank" rel="noreferrer" className="eco-btn-primary" style={{ background: '#10B981', color: '#050505' }}>
+                  <Download size={15} /> Download APK (v1.1.0)
+                </a>
+                <a href="https://github.com/Kishan8548/Nudge/releases" target="_blank" rel="noreferrer" className="eco-btn-secondary">
+                  <ExternalLink size={15} /> Release Notes
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── STACK SECTION ── */}
       <section className="lp-section lp-section-alt">
         <div className="lp-section-inner">
@@ -429,9 +518,298 @@ export default function Landing() {
         </div>
       </footer>
 
+      {/* ── CHROME EXTENSION MODAL ── */}
+      {showExtModal && (
+        <div className="modal-backdrop" onClick={() => setShowExtModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="modal-title-wrap">
+                <Puzzle size={22} color="#38BDF8" />
+                <h3>Install Nudge Chrome Extension</h3>
+              </div>
+              <button className="modal-close-btn" onClick={() => setShowExtModal(false)}>
+                <X size={18} />
+              </button>
+            </div>
+            <div className="modal-body">
+              <p className="modal-intro">
+                Capture live Google Meet & Zoom Web meetings in 1 click without inviting an intrusive bot:
+              </p>
+              <div className="modal-steps">
+                <div className="modal-step">
+                  <div className="step-num">1</div>
+                  <div className="step-text">
+                    <strong>Clone or Download the Repository:</strong>
+                    <span>Locate the <code>/extension</code> folder in the Nudge project.</span>
+                  </div>
+                </div>
+                <div className="modal-step">
+                  <div className="step-num">2</div>
+                  <div className="step-text">
+                    <strong>Open Chrome Extensions:</strong>
+                    <span>Navigate to <code>chrome://extensions</code> and turn on <strong>Developer mode</strong> (top right switch).</span>
+                  </div>
+                </div>
+                <div className="modal-step">
+                  <div className="step-num">3</div>
+                  <div className="step-text">
+                    <strong>Load Unpacked:</strong>
+                    <span>Click <strong>Load unpacked</strong> and select the <code>Nudge/extension</code> directory.</span>
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer-actions">
+                <a href="https://github.com/Kishan8548/Nudge/tree/main/extension" target="_blank" rel="noreferrer" className="hero-btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
+                  <GitBranch size={15} /> View Extension on GitHub
+                </a>
+                <button className="hero-btn-secondary" onClick={() => setShowExtModal(false)}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ══ ALL STYLES ══ */}
       <style>{`
         html { scroll-behavior: smooth; }
+
+        /* ── Ecosystem Grid ── */
+        .eco-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+          gap: 24px;
+          margin-top: 24px;
+        }
+        .eco-card {
+          background: rgba(18, 18, 24, 0.7);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 20px;
+          padding: 32px;
+          text-align: left;
+          display: flex;
+          flex-direction: column;
+          backdrop-filter: blur(12px);
+          transition: transform 200ms, border-color 200ms;
+        }
+        .eco-card:hover {
+          transform: translateY(-4px);
+          border-color: rgba(255, 255, 255, 0.16);
+        }
+        .eco-card-chrome { border-top: 3px solid #38BDF8; }
+        .eco-card-android { border-top: 3px solid #10B981; }
+        .eco-card-header {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 16px;
+        }
+        .eco-icon-wrap {
+          width: 52px;
+          height: 52px;
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .eco-badge {
+          display: inline-block;
+          font-size: 0.7rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          padding: 3px 8px;
+          border-radius: 6px;
+          margin-bottom: 4px;
+        }
+        .eco-badge-blue { background: rgba(56, 189, 248, 0.15); color: #38BDF8; }
+        .eco-badge-green { background: rgba(16, 185, 129, 0.15); color: #10B981; }
+        .eco-title {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: #F8FAFC;
+          margin: 0;
+        }
+        .eco-desc {
+          font-size: 0.9rem;
+          color: #94A3B8;
+          line-height: 1.6;
+          margin-bottom: 20px;
+        }
+        .eco-list {
+          list-style: none;
+          padding: 0;
+          margin: 0 0 28px 0;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .eco-list li {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 0.85rem;
+          color: #CBD5E1;
+        }
+        .eco-actions {
+          display: flex;
+          gap: 12px;
+          margin-top: auto;
+          flex-wrap: wrap;
+        }
+        .eco-btn-primary {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 18px;
+          background: #38BDF8;
+          color: #050505;
+          border: none;
+          border-radius: 10px;
+          font-size: 0.84rem;
+          font-weight: 700;
+          font-family: inherit;
+          text-decoration: none;
+          cursor: pointer;
+          transition: transform 150ms, filter 150ms;
+        }
+        .eco-btn-primary:hover {
+          filter: brightness(1.1);
+          transform: translateY(-1px);
+        }
+        .eco-btn-secondary {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 18px;
+          background: rgba(255, 255, 255, 0.05);
+          color: #F8FAFC;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+          font-size: 0.84rem;
+          font-weight: 600;
+          font-family: inherit;
+          text-decoration: none;
+          cursor: pointer;
+          transition: background 150ms;
+        }
+        .eco-btn-secondary:hover {
+          background: rgba(255, 255, 255, 0.09);
+        }
+
+        /* ── Modal ── */
+        .modal-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.75);
+          backdrop-filter: blur(8px);
+          z-index: 1000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          animation: fadeIn 150ms ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-content {
+          background: #111116;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 20px;
+          max-width: 520px;
+          width: 100%;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+          overflow: hidden;
+          animation: modalPop 200ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes modalPop {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .modal-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 20px 24px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .modal-title-wrap {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .modal-title-wrap h3 {
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: #F8FAFC;
+          margin: 0;
+        }
+        .modal-close-btn {
+          background: none;
+          border: none;
+          color: #94A3B8;
+          cursor: pointer;
+          padding: 4px;
+          border-radius: 6px;
+          transition: color 150ms;
+        }
+        .modal-close-btn:hover { color: #F8FAFC; background: rgba(255, 255, 255, 0.08); }
+        .modal-body {
+          padding: 24px;
+        }
+        .modal-intro {
+          font-size: 0.9rem;
+          color: #94A3B8;
+          margin: 0 0 20px 0;
+          line-height: 1.5;
+        }
+        .modal-steps {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          margin-bottom: 24px;
+        }
+        .modal-step {
+          display: flex;
+          align-items: flex-start;
+          gap: 14px;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 12px;
+          padding: 12px 16px;
+        }
+        .step-num {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: #38BDF8;
+          color: #050505;
+          font-weight: 800;
+          font-size: 0.75rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
+        .step-text {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          font-size: 0.85rem;
+          color: #CBD5E1;
+        }
+        .step-text code {
+          background: rgba(56, 189, 248, 0.15);
+          color: #38BDF8;
+          padding: 1px 5px;
+          border-radius: 4px;
+        }
+        .modal-footer-actions {
+          display: flex;
+          gap: 12px;
+        }
 
         /* ── Root ── */
         .lp-root {
