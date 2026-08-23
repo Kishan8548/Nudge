@@ -36,17 +36,27 @@ object NotificationHelper {
             "Deadline Alerts",
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = "Alerts for action items due within 24 hours"
+            description = "Alerts for action items due soon"
             enableVibration(true)
+            enableLights(true)
+            lightColor = 0xFF0D9488.toInt()
+            vibrationPattern = longArrayOf(0, 400, 200, 400)
+            lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
+            setShowBadge(true)
             manager.createNotificationChannel(this)
         }
 
         NotificationChannel(
             CHANNEL_REMINDERS,
             "Task Reminders",
-            NotificationManager.IMPORTANCE_DEFAULT
+            NotificationManager.IMPORTANCE_HIGH
         ).apply {
             description = "Periodic reminders for your pending tasks"
+            enableVibration(true)
+            enableLights(true)
+            lightColor = 0xFF0D9488.toInt()
+            lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
+            setShowBadge(true)
             manager.createNotificationChannel(this)
         }
     }
@@ -77,10 +87,10 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val title = if (isUrgent) "⚠️ Due very soon!" else "📋 Deadline approaching"
+        val title = if (isUrgent) "⚠️ Action Item Due Soon!" else "📋 Deadline Approaching"
         val channel = if (isUrgent) CHANNEL_DEADLINES else CHANNEL_REMINDERS
-        val priority = if (isUrgent) NotificationCompat.PRIORITY_HIGH
-                       else NotificationCompat.PRIORITY_DEFAULT
+        val priority = if (isUrgent) NotificationCompat.PRIORITY_MAX
+                       else NotificationCompat.PRIORITY_HIGH
 
         val notification = NotificationCompat.Builder(context, channel)
             .setSmallIcon(R.drawable.ic_action_items)
@@ -93,6 +103,9 @@ object NotificationHelper {
                     .setSummaryText("Due: $deadline")
             )
             .setPriority(priority)
+            .setCategory(if (isUrgent) NotificationCompat.CATEGORY_ALARM else NotificationCompat.CATEGORY_REMINDER)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setColor(0xFF0D9488.toInt())  // teal_primary

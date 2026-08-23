@@ -1,14 +1,16 @@
 package com.nudge.ai.ui.actionitems
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nudge.ai.data.model.ActionItem
 import com.nudge.ai.data.repository.MeetingRepository
+import com.nudge.ai.notifications.AlarmScheduler
 import kotlinx.coroutines.launch
 
-class ActionItemsViewModel : ViewModel() {
+class ActionItemsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = MeetingRepository()
 
@@ -31,9 +33,13 @@ class ActionItemsViewModel : ViewModel() {
             _isLoading.value = true
             _error.value = null
             repository.getActionItems()
-                .onSuccess {
-                    _allItems.value = it
+                .onSuccess { items ->
+                    _allItems.value = items
                     applyFilter(currentFilter)
+                    // Arm exact system alarms so notifications fire even if app is off
+                    items.forEach { item ->
+                        AlarmScheduler.scheduleTaskReminders(getApplication(), item)
+                    }
                 }
                 .onFailure { _error.value = it.message }
             _isLoading.value = false
@@ -54,6 +60,7 @@ class ActionItemsViewModel : ViewModel() {
     fun markDone(id: String) {
         viewModelScope.launch {
             repository.markDone(id).onSuccess {
+                AlarmScheduler.cancelTaskReminders(getApplication(), id)
                 val updated = _allItems.value?.map { item ->
                     if (item.id == id) item.copy(status = "done") else item
                 } ?: return@onSuccess

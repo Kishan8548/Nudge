@@ -90,24 +90,33 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Schedule two WorkManager periodic jobs:
+     * Schedule WorkManager jobs:
      *
-     * 1. Deadline checker — every 6 hours
-     *    Fires individual notifications for tasks due ≤24h
-     *
-     * 2. Daily summary — every 24 hours
-     *    Shows "You have N pending tasks" if no deadline alerts fired
+     * 1. Immediate sync & exact alarm arming
+     * 2. Periodic deadline checker — every 1 hour
+     * 3. Daily summary — every 24 hours
      */
     private fun scheduleDeadlineReminders() {
         val workManager = WorkManager.getInstance(applicationContext)
 
-        // Deadline checker — every 6 hours, needs network
         val deadlineConstraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
+        // 1. Immediate sync & exact alarm arming on launch
+        val immediateWork = OneTimeWorkRequestBuilder<DeadlineReminderWorker>()
+            .setConstraints(deadlineConstraints)
+            .build()
+
+        workManager.enqueueUniqueWork(
+            "nudge_immediate_alarm_sync",
+            ExistingWorkPolicy.REPLACE,
+            immediateWork
+        )
+
+        // 2. Deadline checker — every 1 hour, needs network
         val deadlineWork = PeriodicWorkRequestBuilder<DeadlineReminderWorker>(
-            6, TimeUnit.HOURS
+            1, TimeUnit.HOURS
         )
             .setConstraints(deadlineConstraints)
             .setInputData(workDataOf("daily" to false))
@@ -117,14 +126,14 @@ class MainActivity : AppCompatActivity() {
 
         workManager.enqueueUniquePeriodicWork(
             DeadlineReminderWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,   // don't reset if already scheduled
+            ExistingPeriodicWorkPolicy.UPDATE,
             deadlineWork
         )
 
-        // Daily summary — every 24 hours (9am-ish via flex window)
+        // 3. Daily summary — every 24 hours
         val dailyWork = PeriodicWorkRequestBuilder<DeadlineReminderWorker>(
             24, TimeUnit.HOURS,
-            30, TimeUnit.MINUTES  // flex window
+            30, TimeUnit.MINUTES
         )
             .setConstraints(deadlineConstraints)
             .setInputData(workDataOf("daily" to true))
@@ -133,7 +142,7 @@ class MainActivity : AppCompatActivity() {
 
         workManager.enqueueUniquePeriodicWork(
             "${DeadlineReminderWorker.WORK_NAME}_daily",
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.UPDATE,
             dailyWork
         )
     }

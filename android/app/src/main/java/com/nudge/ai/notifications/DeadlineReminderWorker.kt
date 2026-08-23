@@ -50,7 +50,10 @@ class DeadlineReminderWorker(
             var approachingCount = 0
 
             for (item in items.toList()) {
-                // Parse deadline — skip items with no deadline or unparseable date
+                // Arm exact AlarmManager alarms so alerts fire even if the app is killed or device is sleeping
+                AlarmScheduler.scheduleTaskReminders(applicationContext, item)
+
+                // Parse deadline for immediate worker-run check
                 val deadlineMs = parseDeadlineMs(item.deadline) ?: continue
 
                 val msUntilDue: Long = deadlineMs - now
@@ -91,7 +94,7 @@ class DeadlineReminderWorker(
                         )
                         approachingCount++
                     }
-                    else -> { /* > 24 hours away — stay quiet */ }
+                    else -> { /* > 24 hours away — armed via AlarmManager for exact future alert */ }
                 }
             }
 

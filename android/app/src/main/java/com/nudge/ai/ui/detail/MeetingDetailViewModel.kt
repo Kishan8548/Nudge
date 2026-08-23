@@ -1,14 +1,16 @@
 package com.nudge.ai.ui.detail
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nudge.ai.data.model.Meeting
 import com.nudge.ai.data.repository.MeetingRepository
+import com.nudge.ai.notifications.AlarmScheduler
 import kotlinx.coroutines.launch
 
-class MeetingDetailViewModel : ViewModel() {
+class MeetingDetailViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = MeetingRepository()
 
@@ -29,7 +31,12 @@ class MeetingDetailViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             repository.getMeeting(id)
-                .onSuccess { _meeting.value = it }
+                .onSuccess { m ->
+                    _meeting.value = m
+                    m.actionItems?.forEach { item ->
+                        AlarmScheduler.scheduleTaskReminders(getApplication(), item)
+                    }
+                }
                 .onFailure { _error.value = it.message }
             _isLoading.value = false
         }
@@ -40,9 +47,12 @@ class MeetingDetailViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             repository.processMeeting(id)
-                .onSuccess {
-                    _meeting.value = it
+                .onSuccess { m ->
+                    _meeting.value = m
                     _actionTaken.value = "AI processing complete!"
+                    m.actionItems?.forEach { item ->
+                        AlarmScheduler.scheduleTaskReminders(getApplication(), item)
+                    }
                 }
                 .onFailure { _error.value = it.message }
             _isLoading.value = false
@@ -52,6 +62,7 @@ class MeetingDetailViewModel : ViewModel() {
     fun markDone(actionItemId: String) {
         viewModelScope.launch {
             repository.markDone(actionItemId).onSuccess {
+                AlarmScheduler.cancelTaskReminders(getApplication(), actionItemId)
                 _actionTaken.value = "Marked as done"
                 _meeting.value?.id?.let { loadMeeting(it) }
             }

@@ -14,7 +14,10 @@
     <!-- Push notifications (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- WorkManager boot scheduling -->
+    <!-- Exact Alarms & WakeLock for background reminders when app is off -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!-- Storage for saving temp audio files (API < 29) -->
@@ -67,6 +70,22 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_record_info" />
+        </receiver>
+
+        <!-- Exact Deadline Alarm Receiver (fires when app is killed/off) -->
+        <receiver
+            android:name=".notifications.DeadlineAlarmReceiver"
+            android:exported="false" />
+
+        <!-- Boot & App Update Receiver (re-arms alarms after reboot) -->
+        <receiver
+            android:name=".notifications.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
         </receiver>
 
         <!-- WorkManager provider -->
