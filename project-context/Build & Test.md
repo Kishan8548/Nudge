@@ -157,7 +157,17 @@ $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-21.0.6.7-hotspot"
 
 ## 🔄 CI / Automated Workflows
 
-### GitHub Actions: Render Backend Keepalive
+### 1. Android App Build & Release Automation
+- **Workflow file**: [`.github/workflows/android-release.yml`](file:///c:/Users/suren/Nudge/.github/workflows/android-release.yml)
+- **Triggers**: Runs only on changes to `android/**` pushed to `main`, pull requests, or manual `workflow_dispatch`.
+- **Actions**: Compiles APK with Gradle (`./gradlew assembleDebug`), uploads workflow artifact, and automatically publishes/attaches the APK to GitHub Releases (`v1.1.0`).
+
+### 2. Backend & Web CI Pipeline
+- **Workflow file**: [`.github/workflows/ci.yml`](file:///c:/Users/suren/Nudge/.github/workflows/ci.yml)
+- **Triggers**: Runs on changes to `backend/**`, `frontend/**`, or `requirements.txt`.
+- **Actions**: Runs Python 3.12 `pytest backend/tests -v` test suite and builds the Node.js 20 frontend production bundle (`npm run build`).
+
+### 3. Render Backend Keepalive
 - **Workflow file**: [.github/workflows/render-keepalive.yml](file:///c:/Users/suren/Nudge/.github/workflows/render-keepalive.yml)
 - **Schedule**: Runs every 10 minutes (`*/10 * * * *`) to prevent Render free-tier instances from spinning down due to inactivity.
 - **Manual Trigger**: Supports `workflow_dispatch` from the GitHub Actions UI.
