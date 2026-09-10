@@ -29,8 +29,9 @@ jobs:
 
       - name: Run Pytest Test Suite
         env:
-          GROQ_API_KEY: "gsk_dummy_test_key_for_ci_pipeline"
-          MONGODB_URI: "mongodb+srv://dummy:dummy@cluster0.mongodb.net/test"
+          PYTHONPATH: "."
+          GROQ_API_KEY: "test_key_for_ci_pipeline"
+          MONGODB_URI: "mongodb://127.0.0.1:27017/meeting_agent_test"
           MONGODB_DB_NAME: "meeting_agent_test"
         run: |
           pytest backend/tests -v
