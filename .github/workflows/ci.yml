@@ -3,8 +3,18 @@ name: Nudge AI CI
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'requirements.txt'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'requirements.txt'
+      - '.github/workflows/ci.yml'
   workflow_dispatch:
 
 jobs:

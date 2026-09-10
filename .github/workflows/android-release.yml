@@ -1,0 +1,70 @@
+name: Android App Build & Release
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'android/**'
+      - '.github/workflows/android-release.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'android/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    name: Build & Publish Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+
+      - name: Grant Execute Permission for Gradle Wrapper
+        run: chmod +x ./android/gradlew
+
+      - name: Build Android Debug APK
+        run: |
+          cd android
+          ./gradlew assembleDebug --stacktrace
+
+      - name: Locate and Prepare APK
+        run: |
+          mkdir -p release-artifacts
+          cp android/app/build/outputs/apk/debug/app-debug.apk release-artifacts/nudge-ai-debug.apk
+          echo "APK generated successfully: release-artifacts/nudge-ai-debug.apk"
+
+      - name: Upload APK as Workflow Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nudge-ai-android-apk
+          path: release-artifacts/nudge-ai-debug.apk
+          retention-days: 30
+
+      - name: Automatically Update GitHub Release Assets
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.1.0
+          name: "Nudge AI v1.1.0 — Continuous Release"
+          body: |
+            ### 🤖 Automated Android Release Build
+            - **Commit**: `${{ github.sha }}`
+            - **Built on**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+            - **Artifact**: `nudge-ai-debug.apk` (Background Recording, Home Screen Widget & Exact Alarms)
+          files: release-artifacts/nudge-ai-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
