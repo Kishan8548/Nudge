@@ -54,15 +54,24 @@ jobs:
           path: release-artifacts/nudge-ai-debug.apk
           retention-days: 30
 
-      - name: Automatically Update GitHub Release Assets
+      - name: Extract Android App Version
+        id: app_version
+        run: |
+          VERSION=$(grep 'versionName = ' android/app/build.gradle.kts | head -n 1 | awk -F '"' '{print $2}')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected Android app version: $VERSION"
+
+      - name: Automatically Publish GitHub Release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.1.0
-          name: "Nudge AI v1.1.0 — Continuous Release"
+          tag_name: v${{ steps.app_version.outputs.version }}
+          name: "Nudge AI v${{ steps.app_version.outputs.version }} — Continuous Release"
+          make_latest: true
           body: |
-            ### 🤖 Automated Android Release Build
+            ### 🤖 Automated Android Release Build (v${{ steps.app_version.outputs.version }})
             - **Commit**: `${{ github.sha }}`
+            - **Branch**: `${{ github.ref_name }}`
             - **Built on**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
             - **Artifact**: `nudge-ai-debug.apk` (Background Recording, Home Screen Widget & Exact Alarms)
           files: release-artifacts/nudge-ai-debug.apk

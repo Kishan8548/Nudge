@@ -11,7 +11,7 @@ This document records the current live deployment URLs, active feature checklist
 | **API Backend** | Render | `https://nudge-backend-8fri.onrender.com` | 🟢 Healthy |
 | **API Docs (Swagger)** | Render | `https://nudge-backend-8fri.onrender.com/docs` | 🟢 Active |
 | **Web Dashboard** | Vercel | `https://nudge-three-coral.vercel.app/` | 🟢 Live |
-| **Android APK** | GitHub Releases | [`v1.1.0 Release APK`](https://github.com/Kishan8548/Nudge/releases/latest) | 🟢 Available |
+| **Android APK** | GitHub Releases | [`v1.1.1 Release APK`](https://github.com/Kishan8548/Nudge/releases/latest) | 🟢 Available |
 | **Source Code** | GitHub | `https://github.com/Kishan8548/Nudge.git` (Branch: `main`) | 🟢 Synced |
 
 ---
