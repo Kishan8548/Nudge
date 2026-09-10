@@ -323,7 +323,43 @@ def delete_meeting(request: Request, meeting_id: str):
         "deleted_action_items": deleted_ai.deleted_count,
     }
 
+
+@router.get("/{meeting_id}/calendar.ics")
+def export_meeting_calendar_ics(request: Request, meeting_id: str):
+    """Export all action items from a meeting as an iCalendar (.ics) bundle."""
+    from fastapi.responses import Response
+    from backend.services.calendar_service import generate_meeting_action_items_ics
+
+    db = request.app.state.db
+
+    try:
+        oid = ObjectId(meeting_id)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid meeting ID format")
+
+    meeting = db[MEETINGS].find_one({"_id": oid})
+    if not meeting:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+
+    action_items = list(db[ACTION_ITEMS].find({"meeting_id": oid}))
+
+    ics_data = generate_meeting_action_items_ics(
+        meeting_id=meeting_id,
+        meeting_title=meeting.get("title", "Meeting"),
+        action_items=action_items,
+    )
+
+    safe_title = "".join(c if c.isalnum() else "_" for c in meeting.get("title", "meeting"))
+    filename = f"{safe_title}_tasks.ics"
+    return Response(
+        content=ics_data,
+        media_type="text/calendar",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
 # ----- Helpers -----
+
 
 
 def _serialize(doc: dict) -> dict:

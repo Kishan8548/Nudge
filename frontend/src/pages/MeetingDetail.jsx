@@ -231,9 +231,20 @@ export default function MeetingDetail() {
           {meeting.language && ` • ${meeting.language.toUpperCase()}`}
         </p>
         {!needsProcessing && (
-          <button className="btn btn-sm btn-secondary" onClick={handleExportPDF} style={{ marginTop: 8 }}>
-            <Download size={14} /> Export PDF
-          </button>
+          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+            <button className="btn btn-sm btn-secondary" onClick={handleExportPDF}>
+              <Download size={14} /> Export PDF
+            </button>
+            <a
+              className="btn btn-sm btn-secondary"
+              href={api.getMeetingIcsUrl(meeting._id || id)}
+              download
+              style={{ textDecoration: 'none' }}
+              title="Add all deadlines to Google/Apple/Outlook Calendar"
+            >
+              <Calendar size={14} /> Export Calendar (.ics)
+            </a>
+          </div>
         )}
       </div>
 

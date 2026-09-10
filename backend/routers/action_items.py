@@ -472,6 +472,43 @@ def quick_complete_action_item(request: Request, item_id: str):
     return HTMLResponse(content=html_content)
 
 
+@router.get("/{item_id}/calendar.ics")
+def export_action_item_ics(request: Request, item_id: str):
+    """Export an action item as an iCalendar (.ics) file for Google/Apple/Outlook Calendar."""
+    from fastapi.responses import Response
+    from backend.services.calendar_service import generate_action_item_ics
+    from backend.db.models import MEETINGS
+
+    db = request.app.state.db
+    oid = _parse_oid(item_id)
+
+    item = db[ACTION_ITEMS].find_one({"_id": oid})
+    if not item:
+        raise HTTPException(status_code=404, detail="Action item not found")
+
+    meeting_title = "Nudge AI Meeting"
+    if item.get("meeting_id"):
+        meeting = db[MEETINGS].find_one({"_id": item["meeting_id"]})
+        if meeting:
+            meeting_title = meeting.get("title", "Nudge AI Meeting")
+
+    ics_data = generate_action_item_ics(
+        item_id=item_id,
+        task_text=item.get("text", "Meeting Task"),
+        deadline_str=item.get("deadline"),
+        owner_name=item.get("owner_name") or item.get("owner"),
+        meeting_title=meeting_title,
+    )
+
+    filename = f"task_{item_id}.ics"
+    return Response(
+        content=ics_data,
+        media_type="text/calendar",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+
 # ----- Helpers -----
 
 

@@ -116,4 +116,8 @@ export const api = {
 
   // Analytics
   getAnalytics: () => get('/api/analytics'),
+
+  // Calendar .ics export URLs
+  getActionItemIcsUrl: (id) => `${BASE_URL}/api/action-items/${id}/calendar.ics`,
+  getMeetingIcsUrl: (id) => `${BASE_URL}/api/meetings/${id}/calendar.ics`,
 };
